@@ -1,8 +1,5 @@
 <?php
-// Ensure session is started (if not already done in header.php)
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 include_once('../../header.php');
 ?>
 <style>
@@ -115,7 +112,7 @@ a.buy-button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     display: none;
     justify-content: center;
     align-items: center;
@@ -142,7 +139,8 @@ a.buy-button:hover {
         <div style="text-align: center; margin-bottom: 10px;">
             <h3 style="margin: 0; font-size: 18px; color: #333;">Search for pages</h3>
         </div>
-        <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+        <div
+            style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
             <input type="text" id="searchBar" placeholder="Search pages..."
                 style="width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid #ccc; font-size: 16px; transition: all 0.3s ease-in-out;"
                 onfocus="this.style.borderColor='#007bff';" onblur="this.style.borderColor='#ccc';" />
@@ -153,13 +151,13 @@ a.buy-button:hover {
         </div>
 
         <?php if (empty($files['Pages'])): ?>
-            <p>No files available in the pages section.</p>
+        <p>No files available in the pages section.</p>
         <?php else: ?>
-            <div class="grid-container" id="file-grid2">
-                <!-- Files will be inserted here -->
-            </div>
-            <!-- Pagination controls -->
-            <div id="pagination"></div>
+        <div class="grid-container" id="file-grid2">
+            <!-- Files will be inserted here -->
+        </div>
+        <!-- Pagination controls -->
+        <div id="pagination"></div>
         <?php endif; ?>
     </div>
 </div>
@@ -173,7 +171,7 @@ a.buy-button:hover {
         <p class="message"></p>
     </div>
 </div>
-        </div>
+</div>
 <?php
 include_once('../../footer.php');
 ?>
@@ -308,30 +306,33 @@ document.addEventListener("click", function(event) {
             function() {
                 // Send AJAX POST request on confirmation
                 fetch("buy_tool.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                    body: `tool_id=${encodeURIComponent(toolId)}&section=${encodeURIComponent(section)}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showPopupMessage(data.success, 'success');
-                        setTimeout(() => window.location.reload(), 2000);
-                    } else {
-                        showPopupMessage(data.error, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error("Error buying tool:", error);
-                    alertify.error("An error occurred. Please try again later.");
-                });
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        body: `tool_id=${encodeURIComponent(toolId)}&section=${encodeURIComponent(section)}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showPopupMessage(data.success, 'success');
+                            setTimeout(() => window.location.reload(), 2000);
+                        } else {
+                            showPopupMessage(data.error, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error buying tool:", error);
+                        alertify.error("An error occurred. Please try again later.");
+                    });
             },
             function() {
                 alertify.error("Purchase cancelled.");
             }
-        ).set("labels", { ok: "Confirm", cancel: "Cancel" });
+        ).set("labels", {
+            ok: "Confirm",
+            cancel: "Cancel"
+        });
     }
 });
 </script>

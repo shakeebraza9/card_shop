@@ -252,7 +252,7 @@ td {
                         <th style="padding: 10px; border: 1px solid #ddd;">State</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">City</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">ZIP</th>
-                        <th style="padding: 10px; position: border: 1px solid #ddd;">Other Information</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Other Information</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Base Name</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Refundable</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Price</th>
