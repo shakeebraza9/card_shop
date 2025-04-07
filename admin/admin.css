@@ -1,0 +1,7 @@
+/* admin.css */
+
+/* Basic header layout using flexbox */
+header {
+  display: flex;
+}
+
