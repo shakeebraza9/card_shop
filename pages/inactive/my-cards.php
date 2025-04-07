@@ -271,7 +271,7 @@ table button {
                                 New
                             </span>
                             <?php endif; ?>
-                            <?php echo htmlspecialchars($card['card_number']); ?>
+                            <?php echo htmlspecialchars($card['creference_code']); ?>
 
                         </td>
                         <td style="padding: 10px;">
@@ -350,7 +350,7 @@ table button {
                         <?php foreach ($checkedHistory as $history): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($history['id']); ?></td>
-                            <td><?php echo htmlspecialchars($history['card_number']); ?></td>
+                            <td><?php echo htmlspecialchars($history['creference_code']); ?></td>
                             <td><?php echo htmlspecialchars($history['date_checked']); ?></td>
                             <td><?php echo htmlspecialchars($history['status']); ?></td>
                         </tr>

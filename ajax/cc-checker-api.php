@@ -94,7 +94,7 @@ if (!$userId) {
 $cardnum = $_REQUEST['cardnum'];
 
 // Include the refundable field in the query.
-$stmt = $pdo->prepare("SELECT id, price, purchased_at, cc_status, card_number, refundable FROM credit_cards WHERE card_number = ? AND buyer_id = ?");
+$stmt = $pdo->prepare("SELECT id, price, purchased_at, cc_status, creference_code, refundable FROM cncustomer_records WHERE creference_code = ? AND buyer_id = ?");
 $stmt->execute([$cardnum, $userId]);
 $card = $stmt->fetch();
 
@@ -130,7 +130,7 @@ if ($card['cc_status'] === 'DISABLED') {
 
 // NEW: If the card is dead and a user tries to check it again, update its status to DISABLED.
 if (strtolower($card['cc_status']) === 'dead') {
-    $stmt = $pdo->prepare("UPDATE credit_cards SET cc_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE cncustomer_records SET cc_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
     $stmt->execute([$card['id']]);
     outputResponse(["error" => "Stop cheating, you will be banned", "status" => "disabled"]);
     exit;
@@ -145,7 +145,7 @@ if (!empty($card['purchased_at']) && !empty($card['refundable'])) {
         if ($purchaseTime !== false && (time() - $purchaseTime > $limit * 60)) {
             // Update cc_status to DISABLED if not already done
             if ($card['cc_status'] !== 'ERROR') {
-                $stmt = $pdo->prepare("UPDATE credit_cards SET cc_status = 'ERROR' WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE cncustomer_records SET cc_status = 'ERROR' WHERE id = ?");
                 $stmt->execute([$card['id']]);
             }
             outputResponse(["error" => "Check disabled after {$limit} minutes.", "status" => "disabled"]);
@@ -221,10 +221,10 @@ if ($status === 'DEAD') {
     try {
         $pdo->beginTransaction();
         
-        $stmt = $pdo->prepare("SELECT price FROM credit_cards WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT price FROM cncustomer_records WHERE id = ?");
         $stmt->execute([$card['id']]);
         $cardAmount = $stmt->fetchColumn(); 
-        $stmt = $pdo->prepare("UPDATE credit_cards SET cc_status = 'dead', checked_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE cncustomer_records SET cc_status = 'dead', checked_at = NOW() WHERE id = ?");
         $stmt->execute([$card['id']]);
  
         if ($cardAmount !== false) {
@@ -232,8 +232,8 @@ if ($status === 'DEAD') {
         }
         
         // Log the card check activity
-        $logStmt = $pdo->prepare("INSERT INTO card_activity_log (card_id, card_number, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
-        $logStmt->execute([$card['id'], $card['card_number'], $status, $userId]);
+        $logStmt = $pdo->prepare("INSERT INTO card_activity_log (card_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
+        $logStmt->execute([$card['id'], $card['creference_code'], $status, $userId]);
         
         $pdo->commit();
     } catch (Exception $e) {
@@ -251,8 +251,8 @@ if ($status === 'DEAD') {
         $stmt = $pdo->prepare("UPDATE credit_cards SET cc_status = 'Live', checked_at = NOW() WHERE id = ?");
         $stmt->execute([$card['id']]);
         
-        $logStmt = $pdo->prepare("INSERT INTO card_activity_log (card_id, card_number, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
-        $logStmt->execute([$card['id'], $card['card_number'], $status, $userId]);
+        $logStmt = $pdo->prepare("INSERT INTO card_activity_log (card_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
+        $logStmt->execute([$card['id'], $card['creference_code'], $status, $userId]);
         
         $pdo->commit();
         updateUserBalanceMinus($_SESSION['user_id'], $pdo);

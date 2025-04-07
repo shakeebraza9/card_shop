@@ -23,7 +23,7 @@ class SiteSettings {
     } 
     function getCreditCardBaseNames() {
     
-        $sql = "SELECT DISTINCT base_name FROM credit_cards WHERE base_name != 'NA' AND base_name IS NOT NULL";
+        $sql = "SELECT DISTINCT base_name FROM cncustomer_records WHERE base_name != 'NA' AND base_name IS NOT NULL";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         $baseNames = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -238,12 +238,12 @@ class SiteSettings {
         $basename = isset($filters['basename']) ? trim($filters['basename']) : 'all';
         
     
-        $sql = "SELECT * FROM credit_cards WHERE buyer_id IS NULL AND status = 'unsold'";
+        $sql = "SELECT * FROM cncustomer_records WHERE buyer_id IS NULL AND status = 'unsold'";
         $params = [];
     
         if (!empty($ccBin)) {
-            $bins = array_map('trim', explode(',', $ccBin));
-            $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "card_number LIKE ?")) . ")";
+            $bins = array_map('trim', explode(',', string: $ccBin));
+            $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "creference_code LIKE ?")) . ")";
             foreach ($bins as $bin) {
                 $params[] = $bin . '%';
             }
@@ -341,7 +341,7 @@ class SiteSettings {
     }
 
     public function getDistinctCardTypes2() {
-        $sql = "SELECT DISTINCT card_type FROM credit_cards WHERE card_type IS NOT NULL AND card_type != ''";
+        $sql = "SELECT DISTINCT card_type FROM cncustomer_records WHERE card_type IS NOT NULL AND card_type != ''";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN); 

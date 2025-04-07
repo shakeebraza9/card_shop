@@ -76,15 +76,15 @@ $ccType = isset($_POST['cc_type']) ? trim($_POST['cc_type']) : 'all';
 $cardsPerPage = isset($_POST['cards_per_page']) ? (int)$_POST['cards_per_page'] : 10;
 
 
-$sql = "SELECT id, card_type,name_on_card, card_number, mm_exp, yyyy_exp, country, state, city, zip, price 
-        FROM credit_cards 
+$sql = "SELECT id, card_type,name_on_card, creference_code, mm_exp, yyyy_exp, country, state, city, zip, price 
+        FROM cncustomer_records 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
 
 
 if (!empty($ccBin)) {
     $bins = array_map('trim', explode(',', $ccBin));
-    $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "card_number LIKE ?")) . ")";
+    $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "creference_code LIKE ?")) . ")";
     foreach ($bins as $bin) {
         $params[] = $bin . '%';
     }
@@ -119,7 +119,7 @@ $creditCards = $stmt->fetchAll();
 
 $stmt = $pdo->prepare("
     SELECT * 
-    FROM credit_cards 
+    FROM cncustomer_records 
     WHERE buyer_id = ? 
     AND status = 'sold' 
     ORDER BY created_at DESC
@@ -198,15 +198,15 @@ foreach ($sections as $section) {
 // Stats for seller dashboard
 $seller_id = $user_id;
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM credit_cards WHERE seller_id = ?");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM cncustomer_records WHERE seller_id = ?");
 $stmt->execute([$seller_id]);
 $totalCardsUploaded = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM credit_cards WHERE seller_id = ? AND buyer_id IS NULL AND status = 'unsold'");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM cncustomer_records WHERE seller_id = ? AND buyer_id IS NULL AND status = 'unsold'");
 $stmt->execute([$seller_id]);
 $unsoldCards = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM credit_cards WHERE seller_id = ? AND buyer_id IS NOT NULL AND status = 'sold'");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM cncustomer_records WHERE seller_id = ? AND buyer_id IS NOT NULL AND status = 'sold'");
 $stmt->execute([$seller_id]);
 $soldCardsCount = $stmt->fetchColumn();
 
@@ -311,34 +311,36 @@ endif;
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
-
-
-.pulse-dot {
-    display: inline-block;
-    margin-left: 8px; /* Space between the text and the dot */
-    width: 10px;
-    height: 10px;
-    background-color: red;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
-    vertical-align: middle; /* Aligns with the text */
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
+    .pulse-dot {
+        display: inline-block;
+        margin-left: 8px;
+        /* Space between the text and the dot */
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+        box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        vertical-align: middle;
+        /* Aligns with the text */
     }
-    50% {
-        transform: scale(1.5);
-        opacity: 0.7;
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.5);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
 
 
 
@@ -649,74 +651,76 @@ endif;
         <div class="dashboard-container">
 
             <nav class="sidebar uuper">
-            <ul class="sdbr-ct32">
-    <li>
-        <a href="<?= $urlval ?>pages/inactive/news.php" id="news-nav">
-            <i class="fas fa-newspaper"></i> News
-        </a>
-    </li>
-    <li>
-        <a href="<?= $urlval ?>pages/inactive/tools.php" id="tools-nav">
-            <i class="fas fa-wrench"></i> Tools
-        </a>
-    </li>
-     <li>
-        <a href="<?= $urlval ?>pages/inactive/leads.php" id="leads-nav">
-            <i class="fas fa-envelope"></i> Leads
-        </a>
-    </li>
-    <li>
-        <a href="<?= $urlval ?>pages/inactive/pages.php" id="page-nav">
-            <i class="fas fa-file-alt"></i> Pages
-        </a>
-    </li>
-    <li><a href="<?= $urlval?>pages/inactive/orders.php" id="my-orders-nav"><i class="fas fa-box"></i> My
+                <ul class="sdbr-ct32">
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/news.php" id="news-nav">
+                            <i class="fas fa-newspaper"></i> News
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/tools.php" id="tools-nav">
+                            <i class="fas fa-wrench"></i> Tools
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/leads.php" id="leads-nav">
+                            <i class="fas fa-envelope"></i> Leads
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/pages.php" id="page-nav">
+                            <i class="fas fa-file-alt"></i> Pages
+                        </a>
+                    </li>
+                    <li><a href="<?= $urlval?>pages/inactive/orders.php" id="my-orders-nav"><i class="fas fa-box"></i>
+                            My
                             Orders</a></li>
-                            <li>
-        <a href="<?= $urlval ?>pages/inactive/cards.php" id="cards-nav">
-            <i class="far fa-credit-card"></i> Credit Cards
-        </a>
-    </li>
-    <li>
-        <a href="<?= $urlval ?>pages/inactive/dumps.php" id="dumps-nav">
-            <i class="far fa-credit-card"></i> Dumps
-        </a>
-    </li>
-    <li>
-        <a href="<?= $urlval ?>pages/inactive/my-cards.php" id="page-nav">
-            <i class="fas fa-id-card"></i> My Cards
-        </a>
-    </li>
-    <li><a href="<?= $urlval?>pages/inactive/my-dumps.php" id="my-dumps-nav">
-        <i class="fas fa-id-card"></i> My Dumps
-    </a>
-</li>
-  
-   
-    <li>
-        <a href="<?= $urlval ?>pages/inactive/index.php" id="dumps-nav">
-            <i class="fas fa-dollar-sign"></i> Add Money
-        </a>
-    </li>
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/cards.php" id="cards-nav">
+                            <i class="far fa-credit-card"></i> Credit Cards
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/dumps.php" id="dumps-nav">
+                            <i class="far fa-credit-card"></i> Dumps
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/my-cards.php" id="page-nav">
+                            <i class="fas fa-id-card"></i> My Cards
+                        </a>
+                    </li>
+                    <li><a href="<?= $urlval?>pages/inactive/my-dumps.php" id="my-dumps-nav">
+                            <i class="fas fa-id-card"></i> My Dumps
+                        </a>
+                    </li>
 
-    <li>
-        <a href="<?= $urlval ?>/pages/inactive/rules.php" id="dumps-nav">
-            <i class="fas fa-gavel"></i> Rules
-        </a>
-    </li>
 
-    <li>
-    <a href="<?= $urlval ?>/pages/inactive/support.php" id="support-nav" class="<?= $unreadMessageClass ?>">
-        <i class="fas fa-life-ring"></i> Support
-        <?php if ($unreadCount > 0): ?>
-            <span class="pulse-dot"></span>
-        <?php endif; ?>
-    </a>
-</li>
-   
-</ul>
+                    <li>
+                        <a href="<?= $urlval ?>pages/inactive/index.php" id="dumps-nav">
+                            <i class="fas fa-dollar-sign"></i> Add Money
+                        </a>
+                    </li>
 
-<div class="d-flex justify-content-center">
+                    <li>
+                        <a href="<?= $urlval ?>/pages/inactive/rules.php" id="dumps-nav">
+                            <i class="fas fa-gavel"></i> Rules
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= $urlval ?>/pages/inactive/support.php" id="support-nav"
+                            class="<?= $unreadMessageClass ?>">
+                            <i class="fas fa-life-ring"></i> Support
+                            <?php if ($unreadCount > 0): ?>
+                            <span class="pulse-dot"></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+
+                </ul>
+
+                <div class="d-flex justify-content-center">
                     <a href="" class="see-all" style="color:#fff;">See all</a>
                 </div>
             </nav>

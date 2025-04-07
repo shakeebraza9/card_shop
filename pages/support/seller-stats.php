@@ -7,8 +7,8 @@ $sellerPercentage = isset($user['seller_percentage']) ? (float)$user['seller_per
 
 // Fetch seller's uploaded cards (read-only) with price included
 $seller_id = $_SESSION['user_id'];
-$stmt = $pdo->prepare("SELECT id, card_number, cc_status, purchased_at, price 
-                       FROM credit_cards 
+$stmt = $pdo->prepare("SELECT id, creference_code, cc_status, purchased_at, price 
+                       FROM cncustomer_records 
                        WHERE seller_id = ? AND (deleted IS NULL OR deleted != 1)");
 $stmt->execute([$seller_id]);
 $cards = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -389,7 +389,7 @@ $deadDumpPercentage = ($totalDumps > 0) ? round(($deadDumps / $totalDumps) * 100
                                 data-sold="<?php echo empty($card['purchased_at']) ? 'unsold' : 'sold'; ?>">
 
                                 <td><?php echo $i++; ?></td>
-                                <td><?php echo htmlspecialchars($card['card_number'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($card['creference_code'] ?? ''); ?></td>
                                 <td style="color: <?php echo $status_color; ?>;">
                                     <?php echo htmlspecialchars($displayStatus); ?></td>
                                 <td><?php echo htmlspecialchars($soldText); ?></td>

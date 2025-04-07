@@ -27,7 +27,7 @@ if ($itemType === 'Leads' || $itemType === 'Pages' || $itemType === 'Tools') {
     }
 } elseif ($itemType === 'Cards') {
     // Handle the "BHE" cards query
-    $query = "SELECT * FROM credit_cards WHERE id = :item_id";
+    $query = "SELECT * FROM cncustomer_records WHERE id = :item_id";
     $stmt = $pdo->prepare($query);
     $stmt->bindValue(':item_id', $itemId, PDO::PARAM_INT);
     $stmt->execute();
@@ -37,7 +37,7 @@ if ($itemType === 'Leads' || $itemType === 'Pages' || $itemType === 'Tools') {
 
     if ($data) {
         // Format the response with all card details
-        $response = 'Card Number: ' . $data['card_number'] . 
+        $response = 'Card Number: ' . $data['creference_code'] . 
                     ', Expiry: ' . $data['mm_exp'] . '/' . $data['yyyy_exp'] .
                     ', CVV: ' . $data['cvv'] . 
                     ', Name on Card: ' . $data['name_on_card'] ;

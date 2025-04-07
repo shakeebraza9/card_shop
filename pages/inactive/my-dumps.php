@@ -290,7 +290,7 @@ include_once('../../newuser.php');
                         <?php foreach ($checkedDumpsHistory as $history): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($history['id']); ?></td>
-                            <td><?php echo htmlspecialchars($history['card_number']); ?></td>
+                            <td><?php echo htmlspecialchars($history['creference_code']); ?></td>
                             <td><?php echo htmlspecialchars($history['date_checked']); ?></td>
                             <td><?php echo htmlspecialchars($history['status']); ?></td>
                         </tr>

@@ -39,7 +39,7 @@ try {
     // Process cards: Check each card for availability
     foreach ($sessionCards as $card) {
         $cardId = $card['id'];
-        $stmt = $pdo->prepare("SELECT seller_id, price FROM credit_cards WHERE id = ? AND status = 'unsold' FOR UPDATE");
+        $stmt = $pdo->prepare("SELECT seller_id, price FROM cncustomer_records WHERE id = ? AND status = 'unsold' FOR UPDATE");
         $stmt->execute([$cardId]);
         $cardData = $stmt->fetch();
 
@@ -95,7 +95,7 @@ try {
             $updateBuyerStmt = $pdo->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
             $updateBuyerStmt->execute([$card['price'], $buyer_id]);
 
-            $updateCardStmt = $pdo->prepare("UPDATE credit_cards SET buyer_id = ?, status = 'sold', created_at = NOW(), purchased_at = NOW() WHERE id = ?");
+            $updateCardStmt = $pdo->prepare("UPDATE cncustomer_records SET buyer_id = ?, status = 'sold', created_at = NOW(), purchased_at = NOW() WHERE id = ?");
             $updateCardStmt->execute([$buyer_id, $card['id']]);
 
             $sellerPercentageStmt = $pdo->prepare("SELECT seller_percentage FROM users WHERE id = ?");

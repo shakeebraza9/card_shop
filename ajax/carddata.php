@@ -22,7 +22,7 @@ function formatCardData($creditCards) {
         $otherinfo = (!empty($card['otherinfo']) && $card['otherinfo'] != 'NA' && $card['otherinfo'] != 'No') ? 'Yes' : 'No';
 
         if (is_null($card['card_type'])) {
-            $cardType = getCardType($card['card_number'] ?? '');
+            $cardType = getCardType($card['creference_code'] ?? '');
             $cardimg = strtolower($cardType);
         } else { 
             $cardimg = strtolower($card['card_type']);
@@ -34,7 +34,7 @@ function formatCardData($creditCards) {
             'phone_number'       => htmlspecialchars($card['phone_number'] ?? 'NA'),
             'mmn'       => htmlspecialchars($card['mmn'] ?? 'NA'),
             'date_of_birth'       => htmlspecialchars($card['date_of_birth'] ?? 'NA'),
-            'card_number' => htmlspecialchars(substr($card['card_number'] ?? '', 0, 6)),
+            'creference_code' => htmlspecialchars(substr($card['creference_code'] ?? '', 0, 6)),
             'expiry'      => htmlspecialchars($card['mm_exp'] ?? '') . '/' . htmlspecialchars($card['yyyy_exp'] ?? ''),
             'country'     => htmlspecialchars($card['country'] ?? ''),
             'state'       => htmlspecialchars($card['state'] ?? ''),

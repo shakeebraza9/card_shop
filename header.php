@@ -64,7 +64,7 @@ foreach ($sectionsVisibility as $section) {
 
 $creditCardCountries = $pdo->query("
     SELECT DISTINCT UPPER(TRIM(REPLACE(REPLACE(country, CHAR(160), ''), CHAR(9), ''))) AS country 
-    FROM credit_cards 
+    FROM cncustomer_records 
     WHERE country IS NOT NULL AND country != '' 
     GROUP BY UPPER(TRIM(REPLACE(REPLACE(country, CHAR(160), ''), CHAR(9), '')))
 ")->fetchAll(PDO::FETCH_COLUMN);
@@ -87,15 +87,15 @@ $ccType = isset($_POST['cc_type']) ? trim($_POST['cc_type']) : 'all';
 $cardsPerPage = isset($_POST['cards_per_page']) ? (int)$_POST['cards_per_page'] : 10;
 
 
-$sql = "SELECT id, card_type,name_on_card, card_number, mm_exp, yyyy_exp, country, state, city, zip, price 
-        FROM credit_cards 
+$sql = "SELECT id, card_type,name_on_card, creference_code, mm_exp, yyyy_exp, country, state, city, zip, price 
+        FROM cncustomer_records 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
 
 
 if (!empty($ccBin)) {
     $bins = array_map('trim', explode(',', $ccBin));
-    $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "card_number LIKE ?")) . ")";
+    $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "creference_code LIKE ?")) . ")";
     foreach ($bins as $bin) {
         $params[] = $bin . '%';
     }
@@ -135,7 +135,7 @@ $quotedKey = $pdo->quote($encryptionKey);
 $stmt = $pdo->prepare("
     SELECT
         id,
-        CONVERT(AES_DECRYPT(card_number, $quotedKey) USING utf8) AS card_number,
+        CONVERT(AES_DECRYPT(creference_code, $quotedKey) USING utf8) AS creference_code,
         CONVERT(AES_DECRYPT(cvv,         $quotedKey) USING utf8) AS cvv,
         name_on_card,
         mm_exp,
@@ -147,7 +147,7 @@ $stmt = $pdo->prepare("
         country,
         phone_number,
         date_of_birth
-    FROM credit_cards
+    FROM cncustomer_records
     WHERE buyer_id = ? 
       AND status = 'sold'
     ORDER BY purchased_at DESC
@@ -227,15 +227,15 @@ foreach ($sections as $section) {
 // Stats for seller dashboard
 $seller_id = $user_id;
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM credit_cards WHERE seller_id = ?");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM cncustomer_records WHERE seller_id = ?");
 $stmt->execute([$seller_id]);
 $totalCardsUploaded = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM credit_cards WHERE seller_id = ? AND buyer_id IS NULL AND status = 'unsold'");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM cncustomer_records WHERE seller_id = ? AND buyer_id IS NULL AND status = 'unsold'");
 $stmt->execute([$seller_id]);
 $unsoldCards = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM credit_cards WHERE seller_id = ? AND buyer_id IS NOT NULL AND status = 'sold'");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM cncustomer_records WHERE seller_id = ? AND buyer_id IS NOT NULL AND status = 'sold'");
 $stmt->execute([$seller_id]);
 $soldCardsCount = $stmt->fetchColumn();
 
@@ -321,14 +321,14 @@ else:
 
 
     <!-- <script src="js/section-navigation.js" defer></script> -->
-    <script src="/shop2/shop3/js/support.js" defer></script>
-    <script src="/shop2/shop3/js/clearFilters.js" defer></script>
-    <script src="/shop2/shop3/js/copy-button.js" defer></script>
+    <script src="<?= $urlval?>js/support.js" defer></script>
+    <script src="<?= $urlval?>js/clearFilters.js" defer></script>
+    <script src="<?= $urlval?>js/copy-button.js" defer></script>
     <!-- <script src="/shop2/shop3/js/refresh-cards.js" defer></script>
 <script src="/shop2/shop3/js/refresh-dumps.js" defer></script> -->
-    <script src="/shop2/shop3/js/cc-message.js" defer></script>
-    <script src="/shop2/shop3/js/dumps-message.js" defer></script>
-    <script src="/shop2/shop3/js/tools-message.js" defer></script>
+    <script src="<?= $urlval?>js/cc-message.js" defer></script>
+    <script src="<?= $urlval?>js/dumps-message.js" defer></script>
+    <script src="<?= $urlval?>js/tools-message.js" defer></script>
 
 
     <!-- Bootstrap Icons -->

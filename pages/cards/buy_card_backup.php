@@ -20,7 +20,7 @@ try {
     $pdo->beginTransaction();
 
    
-    $stmt = $pdo->prepare("SELECT seller_id, price FROM credit_cards WHERE id = ? AND status = 'unsold' FOR UPDATE");
+    $stmt = $pdo->prepare("SELECT seller_id, price FROM cncustomer_records WHERE id = ? AND status = 'unsold' FOR UPDATE");
     $stmt->execute([$card_id]);
     $card = $stmt->fetch();
 

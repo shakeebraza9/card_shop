@@ -209,7 +209,7 @@ td {
                     <label for="refundable">Refundable</label>
                     <select name="refundable" id="refundable">
                         <option value="">All</option>
-                        <?php foreach ($pdo->query("SELECT DISTINCT refundable FROM credit_cards WHERE refundable IS NOT NULL AND refundable != '' AND buyer_id IS NULL") as $row): ?>
+                        <?php foreach ($pdo->query("SELECT DISTINCT refundable FROM cncustomer_records WHERE refundable IS NOT NULL AND refundable != '' AND buyer_id IS NULL") as $row): ?>
                         <option value="<?= htmlspecialchars($row['refundable']) ?>">
                             <?= htmlspecialchars($row['refundable']) ?>
                         </option>
@@ -360,7 +360,7 @@ $(document).ready(function() {
                 data: 'card_logo'
             },
             {
-                data: 'card_number'
+                data: 'creference_code'
             },
             {
                 data: 'expiry'
@@ -462,7 +462,10 @@ function addToCart(cardId) {
                 type: 'card'
             }),
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response:', response); // Check the actual response content
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 updateCartSidebar(data.cards, data.dumps, data.total);

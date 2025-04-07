@@ -387,7 +387,7 @@ $(document).ready(function() {
                 data: 'card_logo'
             },
             {
-                data: 'card_number'
+                data: 'creference_code'
             },
             {
                 data: 'expiry'
@@ -456,7 +456,7 @@ $(document).ready(function() {
         alert("Your account is inactive. You need to top up some balance.");
         // Redirect to the specific page
         window.location.href =
-        '<?= $urlval?>pages/inactive/index.php'; // Change this to your desired destination
+            '<?= $urlval?>pages/inactive/index.php'; // Change this to your desired destination
     }
 });
 </script>

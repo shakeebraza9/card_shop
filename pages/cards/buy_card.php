@@ -27,8 +27,8 @@ try {
 
     // Lock the card row to prevent concurrent purchases.
     $stmt = $pdo->prepare("
-        SELECT id, seller_id, price, card_number, card_type 
-        FROM credit_cards 
+        SELECT id, seller_id, price, creference_code, card_type 
+        FROM cncustomer_records 
         WHERE id = ? AND status = 'unsold' 
         FOR UPDATE
     ");
@@ -64,7 +64,7 @@ try {
 
     // Mark the card as sold.
     $updateCardStmt = $pdo->prepare("
-        UPDATE credit_cards 
+        UPDATE cncustomer_records 
         SET buyer_id = ?, status = 'sold', purchased_at = NOW() 
         WHERE id = ?
     ");

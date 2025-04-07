@@ -1,4 +1,6 @@
 <?php
+header('Content-Type: application/json; charset=UTF-8');
+
 session_start();
 require '../global.php';
 
@@ -17,7 +19,7 @@ if ($cardId && $type) {
     try {
 
         if ($type == 'card') {
-            $stmt = $pdo->prepare("SELECT id, card_number, name_on_card, price, card_type FROM credit_cards WHERE id = :cardId");
+            $stmt = $pdo->prepare("SELECT id, creference_code, name_on_card, price, card_type FROM cncustomer_records WHERE id = :cardId");
         } elseif ($type == 'dump') {
             $stmt = $pdo->prepare("SELECT id, track1, track2, monthexp, yearexp, pin, price, country, base_name, seller_name, status, card_type FROM dumps WHERE id = :cardId");
         } else {
@@ -29,10 +31,10 @@ if ($cardId && $type) {
         $stmt->execute();
 
         $item = $stmt->fetch(PDO::FETCH_ASSOC);
-
         if ($item) {
-
+            
             if ($type == 'dump') {
+                
                 $cardtpe=$item['card_type']??'visa';
                 $itemData = [
                     'id' => $item['id'],
@@ -51,7 +53,7 @@ if ($cardId && $type) {
                 $cardtpe=$item['card_type']??'visa';
                 $itemData = [
                     'id' => $item['id'],
-                    'bin' => substr($item['card_number'], 0, 6), 
+                    'bin' => substr($item['creference_code'], 0, 6), 
                     'price' => $item['price'],
                     'image' => '/shop/images/cards/' . strtolower($cardtpe) . '.png',
                     'type' => 'card'
@@ -67,6 +69,14 @@ if ($cardId && $type) {
             $cardTotal = array_sum(array_column($_SESSION['cards'], 'price')) ?? 0;
             $dumpTotal = array_sum(array_column($_SESSION['dumps'], 'price')) ?? 0;
             $total = $cardTotal + $dumpTotal;
+
+            foreach ($_SESSION['cards'] as &$card) {
+                $card['bin'] = htmlspecialchars($card['bin'], ENT_QUOTES, 'UTF-8');
+            }
+            
+            foreach ($_SESSION['dumps'] as &$dump) {
+                $dump['bin'] = htmlspecialchars($dump['bin'], ENT_QUOTES, 'UTF-8');
+            }
             echo json_encode([
                 'success' => true,
                 'cards' => array_values($_SESSION['cards']??[]),

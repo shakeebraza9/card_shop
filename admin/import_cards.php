@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Assign POST values, etc.
-        $section = 'credit_cards';
+        $section = 'cncustomer_records';
         $seller_id = $_POST['seller_id'];
         $price = $_POST['price'];
         $pos_card_number = $_POST['pos_card_number'];
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dob_obj = DateTime::createFromFormat('d/m/Y', $dob_raw) ?: DateTime::createFromFormat('Y-m-d', $dob_raw);
                 $dob = $dob_obj ? $dob_obj->format('Y-m-d') : null;
 
-                $checkQuery = "SELECT card_number, mm_exp, yyyy_exp FROM credit_cards WHERE card_number = ? AND mm_exp = ? AND yyyy_exp = ?";
+                $checkQuery = "SELECT creference_code, mm_exp, yyyy_exp FROM cncustomer_records WHERE creference_code = ? AND mm_exp = ? AND yyyy_exp = ?";
                 $checkStmt = $pdo->prepare($checkQuery);
                 $checkStmt->execute([$card_number, $mm_exp, $yyyy_exp]);
 
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $quotedKey = $pdo->quote($encryptionKey);
 
 $query = "INSERT INTO $section (
-    card_number,
+    creference_code,
     mm_exp,
     yyyy_exp,
     cvv,
@@ -255,72 +255,85 @@ if (!$errorMessage) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-<style>
-.refund-container {
-            display: inline-flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        .refund-container input[type="checkbox"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #0c182f;
-            border-radius: 4px;
-            margin-right: 8px;
-            position: relative;
-            cursor: pointer;
-            outline: none;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .refund-container input[type="checkbox"]:checked {
-            background-color: #0c182f;
-        }
-        .refund-container input[type="checkbox"]:checked::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 7px;
-            width: 5px;
-            height: 10px;
-            border: solid #fff;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-        .refund-container label {
-            font-size: 16px;
-            color: #0c182f;
-            cursor: pointer;
-        }
-        </style>
+    <style>
+    .refund-container {
+        display: inline-flex;
+        align-items: center;
+        margin: 10px 0;
+    }
+
+    .refund-container input[type="checkbox"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #0c182f;
+        border-radius: 4px;
+        margin-right: 8px;
+        position: relative;
+        cursor: pointer;
+        outline: none;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .refund-container input[type="checkbox"]:checked {
+        background-color: #0c182f;
+    }
+
+    .refund-container input[type="checkbox"]:checked::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 7px;
+        width: 5px;
+        height: 10px;
+        border: solid #fff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .refund-container label {
+        font-size: 16px;
+        color: #0c182f;
+        cursor: pointer;
+    }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Import Data</title>
     <link rel="stylesheet" href="../css/importer.css">
 </head>
+
 <body>
-    <div class="container" style="position: relative; max-height: 80vh; overflow-y: auto; border: 1px solid #ccc; padding: 20px; border-radius: 10px;">
+    <div class="container"
+        style="position: relative; max-height: 80vh; overflow-y: auto; border: 1px solid #ccc; padding: 20px; border-radius: 10px;">
         <h2>Import Credit Cards</h2>
         <form action="ic.php" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
             <textarea name="data" id="data" placeholder="Enter data based on the format selected"></textarea>
-            <div style="display: flex; gap: 30px; justify-content: center; align-items: center; padding: 20px; border: 2px dashed gold; border-radius: 12px; background-color: #fff9e6; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);">
-                <label style="display: flex; align-items: center; position: relative; cursor: pointer; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">
+            <div
+                style="display: flex; gap: 30px; justify-content: center; align-items: center; padding: 20px; border: 2px dashed gold; border-radius: 12px; background-color: #fff9e6; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);">
+                <label
+                    style="display: flex; align-items: center; position: relative; cursor: pointer; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">
                     <input type="radio" name="otherinfo" value="Yes" style="display: none;"
                         <?= (isset($otherinfo) && $otherinfo == 'Yes') || !isset($otherinfo) ? 'checked' : '' ?>>
-                    <span style="padding: 12px 24px; border: 2px solid gold; border-radius: 8px; background: gold; color: white; transition: 0.3s; box-shadow: rgba(0, 0, 0, 0.4) 0px 6px 10px; text-transform: uppercase; display: inline-block;">Yes</span>
+                    <span
+                        style="padding: 12px 24px; border: 2px solid gold; border-radius: 8px; background: gold; color: white; transition: 0.3s; box-shadow: rgba(0, 0, 0, 0.4) 0px 6px 10px; text-transform: uppercase; display: inline-block;">Yes</span>
                 </label>
-                <label style="display: flex; align-items: center; position: relative; cursor: pointer; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">
+                <label
+                    style="display: flex; align-items: center; position: relative; cursor: pointer; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">
                     <input type="radio" name="otherinfo" value="No" style="display: none;"
                         <?= isset($otherinfo) && $otherinfo == 'No' ? 'checked' : '' ?>>
-                    <span style="padding: 12px 24px; border: 2px solid gold; border-radius: 8px; background: linear-gradient(145deg, #f5f5f5, #ffffff); color: gold; transition: all 0.3s ease; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); text-transform: uppercase; display: inline-block;">No</span>
+                    <span
+                        style="padding: 12px 24px; border: 2px solid gold; border-radius: 8px; background: linear-gradient(145deg, #f5f5f5, #ffffff); color: gold; transition: all 0.3s ease; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); text-transform: uppercase; display: inline-block;">No</span>
                 </label>
             </div>
 
             <!-- Display error message -->
-            <p id="error-message" style="color: red; text-align: center; font-weight: bold; display: none;">Please select "Yes" or "No" before submitting.</p>
+            <p id="error-message" style="color: red; text-align: center; font-weight: bold; display: none;">Please
+                select "Yes" or "No" before submitting.</p>
 
             <input type="file" name="import_file" accept=".csv, .txt">
             <div class="grid-container">
@@ -334,18 +347,19 @@ if (!$errorMessage) {
                     <option value="10 Minutes">10 Minutes</option>
                     <option value="20 Minutes">20 Minutes</option>
                 </select>
-<script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        var refundCheckbox = document.getElementById('refundable-checkbox');
-                        refundCheckbox.addEventListener('change', function() {
-                            var refundDropdown = document.getElementById('refund-duration');
-                            refundDropdown.style.display = this.checked ? 'inline-block' : 'none';
-                        });
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var refundCheckbox = document.getElementById('refundable-checkbox');
+                    refundCheckbox.addEventListener('change', function() {
+                        var refundDropdown = document.getElementById('refund-duration');
+                        refundDropdown.style.display = this.checked ? 'inline-block' : 'none';
                     });
-                </script> </div>     
+                });
+                </script>
+            </div>
 
 
-<div class="grid-container">
+            <div class="grid-container">
                 <input type="number" name="pos_card_number" placeholder="Card Number Pos" required>
                 <input type="number" name="pos_exp_month" placeholder="Exp Month Pos">
                 <input type="number" name="pos_exp_year" placeholder="Exp Year Pos">
@@ -463,4 +477,5 @@ if (!$errorMessage) {
     }
     </script>
 </body>
+
 </html>

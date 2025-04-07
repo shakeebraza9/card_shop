@@ -130,7 +130,7 @@ try {
    // Process credit cards:
 $stmtCards = $pdo->prepare("
 SELECT id, seller_id, price 
-FROM credit_cards 
+FROM cncustomer_records 
 WHERE status = 'sold' 
   AND (LOWER(cc_status) = 'live' OR cc_status = 'unchecked')
   AND (processed IS NULL OR processed != 1)
