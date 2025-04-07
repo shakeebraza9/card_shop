@@ -12,7 +12,7 @@ $ccZip = isset($_POST['cc_zip']) ? trim($_POST['cc_zip']) : '';
 $ccType = isset($_POST['cc_type']) ? trim($_POST['cc_type']) : 'all';
 $cardsPerPage = isset($_POST['cards_per_page']) ? (int)$_POST['cards_per_page'] : 10;
 
-$sql = "SELECT id, card_type, creference_code, mm_exp, yyyy_exp, country, state, city, zip, price 
+$sql = "SELECT id, card_type, creference_code, ex_mm, yyyy_exp, country, state, city, zip, price 
         FROM cncustomer_records 
         WHERE buyer_id IS NULL AND status = 'unsold' ";
 $params = [];

@@ -38,7 +38,7 @@ if ($itemType === 'Leads' || $itemType === 'Pages' || $itemType === 'Tools') {
     if ($data) {
         // Format the response with all card details
         $response = 'Card Number: ' . $data['creference_code'] . 
-                    ', Expiry: ' . $data['mm_exp'] . '/' . $data['yyyy_exp'] .
+                    ', Expiry: ' . $data['ex_mm'] . '/' . $data['yyyy_exp'] .
                     ', CVV: ' . $data['cvv'] . 
                     ', Name on Card: ' . $data['name_on_card'] ;
     } else {

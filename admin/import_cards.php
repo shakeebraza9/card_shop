@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (count($details) >= max($pos_card_number, $pos_exp_month, $pos_exp_year, $pos_cvv, $pos_name_on_card, $pos_address, $pos_city, $pos_state, $pos_zip, $pos_country, $pos_phone_number, $pos_dob)) {
                 // Process each card...
                 $card_number = $pos_card_number ? $details[$pos_card_number - 1] : 'N/A';
-                $mm_exp = $pos_exp_month ? $details[$pos_exp_month - 1] : 'N/A';
+                $ex_mm = $pos_exp_month ? $details[$pos_exp_month - 1] : 'N/A';
                 $yyyy_exp = $pos_exp_year ? $details[$pos_exp_year - 1] : 'N/A';
                 $cvv = $pos_cvv ? $details[$pos_cvv - 1] : 'N/A';
                 $name_on_card = $pos_name_on_card ? $details[$pos_name_on_card - 1] : 'N/A';
@@ -124,9 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dob_obj = DateTime::createFromFormat('d/m/Y', $dob_raw) ?: DateTime::createFromFormat('Y-m-d', $dob_raw);
                 $dob = $dob_obj ? $dob_obj->format('Y-m-d') : null;
 
-                $checkQuery = "SELECT creference_code, mm_exp, yyyy_exp FROM cncustomer_records WHERE creference_code = ? AND mm_exp = ? AND yyyy_exp = ?";
+                $checkQuery = "SELECT creference_code, ex_mm, yyyy_exp FROM cncustomer_records WHERE creference_code = ? AND ex_mm = ? AND yyyy_exp = ?";
                 $checkStmt = $pdo->prepare($checkQuery);
-                $checkStmt->execute([$card_number, $mm_exp, $yyyy_exp]);
+                $checkStmt->execute([$card_number, $ex_mm, $yyyy_exp]);
 
                 if ($checkStmt->rowCount() == 0) {
                     $cc_status = ($refundable !== 'Non-Refundable') ? 'unchecked' : '';
@@ -136,7 +136,7 @@ $quotedKey = $pdo->quote($encryptionKey);
 
 $query = "INSERT INTO $section (
     creference_code,
-    mm_exp,
+    ex_mm,
     yyyy_exp,
     cvv,
     name_on_card,
@@ -166,7 +166,7 @@ $query = "INSERT INTO $section (
     refundable
 ) VALUES (
     AES_ENCRYPT(?, $quotedKey),  -- card_number encrypted
-    ?,                            -- mm_exp
+    ?,                            -- ex_mm
     ?,                            -- yyyy_exp
     AES_ENCRYPT(?, $quotedKey),   -- cvv encrypted
     ?,                            -- name_on_card
@@ -201,7 +201,7 @@ $query = "INSERT INTO $section (
 $stmt = $pdo->prepare($query);
 $stmt->execute([
     $card_number,   // for AES_ENCRYPT(card_number)
-    $mm_exp,
+    $ex_mm,
     $yyyy_exp,
     $cvv,           // for AES_ENCRYPT(cvv)
     $name_on_card,

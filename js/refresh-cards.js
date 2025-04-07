@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <img src="${card.image_path}" alt="${card.card_type} logo" class="card-logo">
                                     </div>
                                     <div><span class="label">BIN:</span> ${card.card_number.substr(0, 6)}</div>
-                                    <div><span class="label">Exp Date:</span> ${card.mm_exp}/${card.yyyy_exp}</div>
+                                    <div><span class="label">Exp Date:</span> ${card.ex_mm}/${card.yyyy_exp}</div>
                                     <div><span class="label">Country:</span> ${card.country}</div>
                                     <div><span class="label">State:</span> ${card.state || 'N/A'}</div>
                                     <div><span class="label">City:</span> ${card.city || 'N/A'}</div>

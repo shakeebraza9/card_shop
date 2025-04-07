@@ -432,7 +432,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                             <?php echo htmlspecialchars($card['creference_code']); ?>
                         </td>
                         <td style="padding: 10px;">
-                            <?php echo htmlspecialchars($card['mm_exp'] . '/' . $card['yyyy_exp']); ?></td>
+                            <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['cvv']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['name_on_card']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['base_name'] ?? 'N/A'); ?></td>
@@ -461,7 +461,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                                 data-disable-time="<?php echo $disableTime; ?>"
                                 data-refundable="<?php echo addslashes($card['refundable']); ?>" onclick="return checkCard(
             '<?php echo addslashes($card['creference_code']); ?>',
-            '<?php echo addslashes($card['mm_exp']); ?>',
+            '<?php echo addslashes($card['ex_mm']); ?>',
             '<?php echo addslashes($card['yyyy_exp']); ?>',
             '<?php echo addslashes($card['cvv'] ?? ''); ?>',
             '<?php echo $card['id']; ?>',

@@ -73,7 +73,7 @@ $ccType = isset($_POST['cc_type']) ? trim($_POST['cc_type']) : 'all';
 $cardsPerPage = isset($_POST['cards_per_page']) ? (int)$_POST['cards_per_page'] : 10;
 
 // Build SQL query for credit cards based on filters
-$sql = "SELECT id, card_type, creference_code, mm_exp, yyyy_exp, country, state, city, zip, price 
+$sql = "SELECT id, card_type, creference_code, ex_mm, yyyy_exp, country, state, city, zip, price 
         FROM cncustomer_records 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
@@ -633,7 +633,7 @@ foreach ($tickets as $ticket) {
                             <div><span class="label">BIN:</span>
                                 <?php echo htmlspecialchars(substr($card['creference_code'], 0, 6)); ?></div>
                             <div><span class="label">Exp Date:</span>
-                                <?php echo htmlspecialchars($card['mm_exp'] . '/' . $card['yyyy_exp']); ?></div>
+                                <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
                             <div><span class="label">Country:</span> <?php echo htmlspecialchars($card['country']); ?>
                             </div>
                             <div><span class="label">State:</span>
@@ -741,7 +741,7 @@ foreach ($tickets as $ticket) {
                     <div class="info-field"><strong>Card Number:</strong>
                         <?php echo htmlspecialchars($card['creference_code']); ?></div>
                     <div class="info-field"><strong>Expiration:</strong>
-                        <?php echo htmlspecialchars($card['mm_exp'] . '/' . $card['yyyy_exp']); ?></div>
+                        <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
                     <div class="info-field"><strong>CVV:</strong> <?php echo htmlspecialchars($card['cvv']); ?></div>
                     <div class="info-field"><strong>Name on Card:</strong>
                         <?php echo htmlspecialchars($card['name_on_card']); ?></div>

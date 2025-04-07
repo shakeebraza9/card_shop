@@ -244,7 +244,7 @@ foreach ($tickets as $ticket) {
                     <div><span class="label">BIN:</span>
                         <?php echo htmlspecialchars(substr($card['creference_code'], 0, 6)); ?></div>
                     <div><span class="label">Exp Date:</span>
-                        <?php echo htmlspecialchars($card['mm_exp'] . '/' . $card['yyyy_exp']); ?></div>
+                        <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
                     <div><span class="label">Country:</span> <?php echo htmlspecialchars($card['country']); ?></div>
                     <div><span class="label">State:</span> <?php echo htmlspecialchars($card['state'] ?: 'N/A'); ?>
                     </div>
@@ -346,7 +346,7 @@ foreach ($tickets as $ticket) {
                 <?php echo htmlspecialchars($card['creference_code']); ?>
             </div>
             <div class="info-field"><strong>Expiration:</strong>
-                <?php echo htmlspecialchars($card['mm_exp'] . '/' . $card['yyyy_exp']); ?></div>
+                <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
             <div class="info-field"><strong>CVV:</strong> <?php echo htmlspecialchars($card['cvv']); ?></div>
             <div class="info-field"><strong>Name on Card:</strong>
                 <?php echo htmlspecialchars($card['name_on_card']); ?></div>

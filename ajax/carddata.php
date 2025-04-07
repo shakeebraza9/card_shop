@@ -35,7 +35,7 @@ function formatCardData($creditCards) {
             'mmn'       => htmlspecialchars($card['mmn'] ?? 'NA'),
             'date_of_birth'       => htmlspecialchars($card['date_of_birth'] ?? 'NA'),
             'creference_code' => htmlspecialchars(substr($card['creference_code'] ?? '', 0, 6)),
-            'expiry'      => htmlspecialchars($card['mm_exp'] ?? '') . '/' . htmlspecialchars($card['yyyy_exp'] ?? ''),
+            'expiry'      => htmlspecialchars($card['ex_mm'] ?? '') . '/' . htmlspecialchars($card['yyyy_exp'] ?? ''),
             'country'     => htmlspecialchars($card['country'] ?? ''),
             'state'       => htmlspecialchars($card['state'] ?? ''),
             'city'        => htmlspecialchars($card['city'] ?? ''),

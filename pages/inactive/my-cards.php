@@ -275,7 +275,7 @@ table button {
 
                         </td>
                         <td style="padding: 10px;">
-                            <?php echo htmlspecialchars($card['mm_exp'] . '/' . $card['yyyy_exp']) ?></td>
+                            <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']) ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['cvv']) ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['name_on_card']) ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['address']) ?></td>
