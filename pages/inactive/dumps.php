@@ -326,7 +326,7 @@ $(document).ready(function() {
                 data: 'card_logo'
             },
             {
-                data: 'track2'
+                data: 'data_segment_two'
             },
             {
                 data: 'expiry'

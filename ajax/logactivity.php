@@ -9,7 +9,7 @@ if (isset($_POST['cardId'], $_POST['cardNumber'], $_POST['status'])) {
     $user_id = $_SESSION['user_id'];
     $date_checked = date("Y-m-d H:i:s");
 
-    $stmt = $pdo->prepare("INSERT INTO card_activity_log (card_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO cnproducts_activity_log (calrecord_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, ?)");
     if ($stmt->execute([$cardId, $cardNumber, $status, $user_id, $date_checked])) {
         echo json_encode(["success" => true]);
     } else {

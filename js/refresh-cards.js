@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div><span class="label">Type:</span>
                                         <img src="${card.image_path}" alt="${card.payment_method_type} logo" class="card-logo">
                                     </div>
-                                    <div><span class="label">BIN:</span> ${card.card_number.substr(0, 6)}</div>
+                                    <div><span class="label">BIN:</span> ${card.reference_code.substr(0, 6)}</div>
                                     <div><span class="label">Exp Date:</span> ${card.ex_mm}/${card.ex_yy}</div>
                                     <div><span class="label">Country:</span> ${card.country}</div>
                                     <div><span class="label">State:</span> ${card.state || 'N/A'}</div>

@@ -285,7 +285,7 @@ function showConfirm(cardId, price) {
                 url: 'buy_card.php',
                 type: 'POST',
                 data: {
-                    card_id: cardId
+                    calrecord_id: cardId
                 },
                 success: function(response) {
                     try {

@@ -17,7 +17,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_activity_log') {
 
     try {
         // $pdo should be defined by header.php
-        $stmt = $pdo->prepare("SELECT * FROM card_activity_log WHERE user_id = :user_id AND deleted = 0 ORDER BY date_checked DESC");
+        $stmt = $pdo->prepare("SELECT * FROM cnproducts_activity_log WHERE user_id = :user_id AND deleted = 0 ORDER BY date_checked DESC");
 $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
         $stmt->execute();
         $activityLogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -45,7 +45,7 @@ ini_set('display_errors', 1);
 if (isset($soldCards) && is_array($soldCards)) {
     // Fetch activity log data
     try {
-        $stmt = $pdo->prepare("SELECT creference_code, status FROM card_activity_log");
+        $stmt = $pdo->prepare("SELECT creference_code, status FROM cnproducts_activity_log");
         $stmt->execute();
         $activityLogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
@@ -72,10 +72,10 @@ if (isset($soldCards) && is_array($soldCards)) {
 
 
 // -----------------------------------------------------------
-// 1) Fetch your card_activity_log data from the database here
+// 1) Fetch your cnproducts_activity_log data from the database here
 // -----------------------------------------------------------
 try {
-    $stmt = $pdo->prepare("SELECT * FROM card_activity_log WHERE user_id = :user_id AND deleted = 0 ORDER BY date_checked DESC");
+    $stmt = $pdo->prepare("SELECT * FROM cnproducts_activity_log WHERE user_id = :user_id AND deleted = 0 ORDER BY date_checked DESC");
 $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
     $stmt->execute();
     $activityLogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -517,7 +517,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                             <?php else: ?>
                             <?php foreach ($activityLogs as $log): ?>
                             <tr class="activity-log-row <?php echo strtolower($log['status']); ?>">
-                                <td><?php echo htmlspecialchars($log['card_id']); ?></td>
+                                <td><?php echo htmlspecialchars($log['calrecord_id']); ?></td>
                                 <td><?php echo htmlspecialchars($log['creference_code']); ?></td>
                                 <td><?php echo htmlspecialchars($log['date_checked']); ?></td>
                                 <td><?php echo htmlspecialchars($log['status']); ?></td>
@@ -620,8 +620,8 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
             logs.forEach(function(log) {
                 var rowClass = log.status.toLowerCase(); // e.g., "live" or "dead"
                 var rowNode = table.row.add([
-                    log.card_id,
-                    log.card_number,
+                    log.calrecord_id,
+                    log.reference_code,
                     log.date_checked,
                     log.status
                 ]).node();

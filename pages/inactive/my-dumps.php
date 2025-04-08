@@ -225,8 +225,8 @@ include_once('../../newuser.php');
                             <?php echo htmlspecialchars($dump['id']); ?>
 
                         </td>
-                        <td><?php echo htmlspecialchars(empty($dump['track1']) ? '' : $dump['track1']); ?></td>
-                        <td><?php echo htmlspecialchars($dump['track2']); ?></td>
+                        <td><?php echo htmlspecialchars(empty($dump['data_segment_one']) ? '' : $dump['data_segment_one']); ?></td>
+                        <td><?php echo htmlspecialchars($dump['data_segment_two']); ?></td>
                         <td><?php echo htmlspecialchars($dump['pin'] ?: 'No'); ?></td>
                         <td><?php echo htmlspecialchars($dump['country']); ?></td>
                         <td
@@ -511,7 +511,7 @@ $(document).ready(function() {
     });
 
     // Disable log table interactions
-    $('#card_activity_log').on('click', 'tr', function(e) {
+    $('#cnproducts_activity_log').on('click', 'tr', function(e) {
         e.preventDefault();
         handleInactiveAccount();
     });

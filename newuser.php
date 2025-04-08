@@ -135,15 +135,15 @@ $dumpPin = isset($_POST['dump_pin']) ? trim($_POST['dump_pin']) : 'all';
 $dumpsPerPage = isset($_POST['dumps_per_page']) ? (int)$_POST['dumps_per_page'] : 10;
 
 // Build SQL query for dumps based on filters
-$sql = "SELECT id, track1, track2, monthexp, yearexp, pin, payment_method_type, price, country 
-        FROM dumps 
+$sql = "SELECT id, data_segment_one, data_segment_two, ex_mm, ex_yy, pin, payment_method_type, price, country 
+        FROM dmptransaction_data 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
 
 // Handle multiple BINs for dumps
 if (!empty($dumpBin)) {
     $bins = array_map('trim', explode(',', $dumpBin));
-    $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "track2 LIKE ?")) . ")";
+    $sql .= " AND (" . implode(" OR ", array_fill(0, count($bins), "data_segment_two LIKE ?")) . ")";
     foreach ($bins as $bin) {
         $params[] = $bin . '%';
     }
@@ -169,7 +169,7 @@ $stmt->execute($params);
 $dumps = $stmt->fetchAll();
 
 // Fetch sold dumps for "My Dumps" section
-$stmt = $pdo->prepare("SELECT * FROM dumps WHERE buyer_id = ? AND status = 'sold' ORDER BY created_at DESC");
+$stmt = $pdo->prepare("SELECT * FROM dmptransaction_data WHERE buyer_id = ? AND status = 'sold' ORDER BY created_at DESC");
 $stmt->execute([$user_id]);
 $soldDumps = $stmt->fetchAll();
 
@@ -210,15 +210,15 @@ $stmt = $pdo->prepare("SELECT COUNT(*) FROM cncustomer_records WHERE seller_id =
 $stmt->execute([$seller_id]);
 $soldCardsCount = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM dumps WHERE seller_id = ?");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM dmptransaction_data WHERE seller_id = ?");
 $stmt->execute([$seller_id]);
 $totalDumpsUploaded = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM dumps WHERE seller_id = ? AND buyer_id IS NULL AND status = 'unsold'");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM dmptransaction_data WHERE seller_id = ? AND buyer_id IS NULL AND status = 'unsold'");
 $stmt->execute([$seller_id]);
 $unsoldDumps = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM dumps WHERE seller_id = ? AND buyer_id IS NOT NULL AND status = 'sold'");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM dmptransaction_data WHERE seller_id = ? AND buyer_id IS NOT NULL AND status = 'sold'");
 $stmt->execute([$seller_id]);
 $soldDumpsCount = $stmt->fetchColumn();
 

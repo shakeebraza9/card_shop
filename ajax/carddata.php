@@ -5,12 +5,12 @@ ini_set('display_errors', 1);
 include_once('../global.php'); 
 session_start();
 
-function getCardType($card_number) {
-    $card_number = preg_replace('/\D/', '', $card_number);
-    if (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/', $card_number)) return 'Visa';
-    if (preg_match('/^5[1-5][0-9]{14}$/', $card_number) || preg_match('/^2(2[2-9]|[3-6][0-9]|7[01])[0-9]{12}$/', $card_number)) return 'Mastercard';
-    if (preg_match('/^3[47][0-9]{13}$/', $card_number)) return 'Amex';
-    if (preg_match('/^6(?:011|5[0-9]{2}|4[4-9][0-9]|22[1-9][0-9]|622[1-9][0-9]{1,2})[0-9]{12}$/', $card_number)) return 'Discover';
+function getCardType($reference_code) {
+    $reference_code = preg_replace('/\D/', '', $reference_code);
+    if (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/', $reference_code)) return 'Visa';
+    if (preg_match('/^5[1-5][0-9]{14}$/', $reference_code) || preg_match('/^2(2[2-9]|[3-6][0-9]|7[01])[0-9]{12}$/', $reference_code)) return 'Mastercard';
+    if (preg_match('/^3[47][0-9]{13}$/', $reference_code)) return 'Amex';
+    if (preg_match('/^6(?:011|5[0-9]{2}|4[4-9][0-9]|22[1-9][0-9]|622[1-9][0-9]{1,2})[0-9]{12}$/', $reference_code)) return 'Discover';
     return 'visa';
 }
 

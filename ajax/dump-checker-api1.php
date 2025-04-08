@@ -18,8 +18,8 @@ function outputResponse($response, $format = 'JSON') {
     echo json_encode($response);
 }
 
-// Validate required parameters for dump check: track1, expm, expy, and pin
-if (empty($_REQUEST['track1']) || empty($_REQUEST['expm']) || empty($_REQUEST['expy']) || empty($_REQUEST['pin'])) {
+// Validate required parameters for dump check: data_segment_one, expm, expy, and pin
+if (empty($_REQUEST['data_segment_one']) || empty($_REQUEST['expm']) || empty($_REQUEST['expy']) || empty($_REQUEST['pin'])) {
     outputResponse(["error" => "Missing required parameters"]);
     exit;
 }
@@ -31,14 +31,14 @@ if (!$buyerId) {
     exit;
 }
 
-$track1 = trim($_REQUEST['track1']);
+$data_segment_one = trim($_REQUEST['data_segment_one']);
 $expm   = trim($_REQUEST['expm']);
 $expy   = trim($_REQUEST['expy']);
 $pin    = trim($_REQUEST['pin']);
 
 // Retrieve the purchased dump record from the dumps table
-$stmt = $pdo->prepare("SELECT id, price, purchased_at, dump_status, track1, track2, Refundable, luxchecker FROM dumps WHERE (track1 = ? OR track2 = ?) AND buyer_id = ?");
-$stmt->execute([$track1, $track1, $buyerId]);
+$stmt = $pdo->prepare("SELECT id, price, purchased_at, dump_status, data_segment_one, data_segment_two, Refundable, luxchecker FROM dmptransaction_data WHERE (data_segment_one = ? OR data_segment_two = ?) AND buyer_id = ?");
+$stmt->execute([$data_segment_one, $data_segment_one, $buyerId]);
 $dump = $stmt->fetch();
 
 if (!$dump) {
@@ -72,7 +72,7 @@ if ($dump['dump_status'] === 'DISABLED') {
 
 // If the dump is already dead, update its status to DISABLED to block further checks.
 if (strtolower($dump['dump_status']) === 'dead') {
-    $stmt = $pdo->prepare("UPDATE dumps SET dump_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE dmptransaction_data SET dump_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
     $stmt->execute([$dump['id']]);
     outputResponse(["error" => "Stop cheating, you will be banned", "status" => "disabled"]);
     exit;
@@ -85,7 +85,7 @@ if (!empty($dump['purchased_at']) && !empty($dump['Refundable'])) {
         $purchaseTime = strtotime($dump['purchased_at']);
         if ($purchaseTime !== false && (time() - $purchaseTime > $refundLimit * 60)) {
             // Update dump_status to DISABLED if refund period has passed.
-            $stmt = $pdo->prepare("UPDATE dumps SET dump_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE dmptransaction_data SET dump_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
             $stmt->execute([$dump['id']]);
             outputResponse(["error" => "Check disabled after {$refundLimit} minutes.", "status" => "disabled"]);
             exit;
@@ -102,7 +102,7 @@ $api_url = $mirrors[0] . "/apiv2/dk.php";
 
 // Build API request data
 $api_data = [
-    'track1' => $track1,
+    'data_segment_one' => $data_segment_one,
     'expm'   => $expm,
     'expy'   => $expy,
     'pin'    => $pin,
@@ -139,11 +139,11 @@ try {
     // Deduct a fixed amount for checking (for example, 0.50)
     updateUserBalanceMinus($buyerId, $pdo);
 
-    $stmt = $pdo->prepare("UPDATE dumps SET dump_status = ?, checked_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE dmptransaction_data SET dump_status = ?, checked_at = NOW() WHERE id = ?");
     $stmt->execute([$status, $dump['id']]);
 
-    $logStmt = $pdo->prepare("INSERT INTO dumps_activity_log (dump_id, track1, buyer_id, date_checked, status) VALUES (?, ?, ?, NOW(), ?)");
-    $dumpTrack = !empty($dump['track1']) ? $dump['track1'] : $dump['track2'];
+    $logStmt = $pdo->prepare("INSERT INTO transaction_access_log (transaction_did, data_segment_one, buyer_id, date_checked, status) VALUES (?, ?, ?, NOW(), ?)");
+    $dumpTrack = !empty($dump['data_segment_one']) ? $dump['data_segment_one'] : $dump['data_segment_two'];
     $logStmt->execute([$dump['id'], $dumpTrack, $buyerId, $status]);
 
     $pdo->commit();

@@ -13,9 +13,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $buyer_id = $_SESSION['user_id'];
-$dump_id = filter_input(INPUT_POST, 'dump_id', FILTER_VALIDATE_INT);
+$transaction_did = filter_input(INPUT_POST, 'transaction_did', FILTER_VALIDATE_INT);
 
-if (!$dump_id) {
+if (!$transaction_did) {
     echo json_encode(['success' => false, 'message' => 'Invalid Dump ID.']);
     exit();
 }
@@ -25,12 +25,12 @@ try {
 
     // Lock the dump row for update to avoid concurrent purchases.
     $stmt = $pdo->prepare("
-        SELECT id, track1, payment_method_type, seller_id, price 
-        FROM dumps 
+        SELECT id, data_segment_one, payment_method_type, seller_id, price 
+        FROM dmptransaction_data 
         WHERE id = ? AND buyer_id IS NULL 
         FOR UPDATE
     ");
-    $stmt->execute([$dump_id]);
+    $stmt->execute([$transaction_did]);
     $dump = $stmt->fetch();
 
     if (!$dump) {
@@ -42,7 +42,7 @@ try {
     $price     = $dump['price'];
     $seller_id = $dump['seller_id'];
     $dump_type = 'Dumps';  // For logging
-    $dump_id   = $dump['id'];
+    $transaction_did   = $dump['id'];
 
     // Retrieve seller percentage from seller's account (default to 100 if not set)
     $stmt = $pdo->prepare("SELECT seller_percentage FROM users WHERE id = ?");
@@ -68,11 +68,11 @@ try {
 
     // Mark the dump as sold.
     $updateDumpStmt = $pdo->prepare("
-        UPDATE dumps 
+        UPDATE dmptransaction_data 
         SET buyer_id = ?, status = 'sold', purchased_at = NOW() 
         WHERE id = ?
     ");
-    $updateDumpStmt->execute([$buyer_id, $dump_id]);
+    $updateDumpStmt->execute([$buyer_id, $transaction_did]);
 
     // Update seller's earnings.
     $updateSellerStmt = $pdo->prepare("
@@ -90,8 +90,8 @@ try {
     $logData = [
         'user_id'    => $buyer_id,
         'user_name'  => $_SESSION['username'],
-        'item_id'    => $dump_id,
-        'buy_itm'    => "dump_id: $dump_id",
+        'item_id'    => $transaction_did,
+        'buy_itm'    => "transaction_did: $transaction_did",
         'item_price' => $price,
         'item_type'  => $dump_type
     ];

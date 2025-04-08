@@ -232,7 +232,7 @@ if ($status === 'DEAD') {
         }
         
         // Log the card check activity
-        $logStmt = $pdo->prepare("INSERT INTO card_activity_log (card_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
+        $logStmt = $pdo->prepare("INSERT INTO cnproducts_activity_log (calrecord_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
         $logStmt->execute([$card['id'], $card['creference_code'], $status, $userId]);
         
         $pdo->commit();
@@ -251,7 +251,7 @@ if ($status === 'DEAD') {
         $stmt = $pdo->prepare("UPDATE credit_cards SET cc_status = 'Live', checked_at = NOW() WHERE id = ?");
         $stmt->execute([$card['id']]);
         
-        $logStmt = $pdo->prepare("INSERT INTO card_activity_log (card_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
+        $logStmt = $pdo->prepare("INSERT INTO cnproducts_activity_log (calrecord_id, creference_code, status, user_id, date_checked) VALUES (?, ?, ?, ?, NOW())");
         $logStmt->execute([$card['id'], $card['creference_code'], $status, $userId]);
         
         $pdo->commit();

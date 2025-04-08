@@ -59,7 +59,7 @@ try {
     // Process dumps: Check each dump for availability
     foreach ($sessionDumps as $dump) {
         $dumpId = $dump['id'];
-        $stmt = $pdo->prepare("SELECT seller_id, price FROM dumps WHERE id = ? AND buyer_id IS NULL FOR UPDATE");
+        $stmt = $pdo->prepare("SELECT seller_id, price FROM dmptransaction_data WHERE id = ? AND buyer_id IS NULL FOR UPDATE");
         $stmt->execute([$dumpId]);
         $dumpData = $stmt->fetch();
 
@@ -115,7 +115,7 @@ try {
                 INSERT INTO activity_log (user_id, user_name, item_id, buy_itm, item_price, item_type, created_at) 
                 VALUES (?, ?, ?, ?, ?, 'Cards', NOW())
             ");
-            $insertActivityLogStmt->execute([$buyer_id, $_SESSION['username'], $card['id'], 'Card_id=' . $card['id'], $card['price']]);
+            $insertActivityLogStmt->execute([$buyer_id, $_SESSION['username'], $card['id'], 'calrecord_id=' . $card['id'], $card['price']]);
         }
 
         // Process valid dumps
@@ -123,7 +123,7 @@ try {
             $updateBuyerStmt = $pdo->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
             $updateBuyerStmt->execute([$dump['price'], $buyer_id]);
 
-            $updateDumpStmt = $pdo->prepare("UPDATE dumps SET buyer_id = ?, status = 'sold', purchased_at = NOW() WHERE id = ?");
+            $updateDumpStmt = $pdo->prepare("UPDATE dmptransaction_data SET buyer_id = ?, status = 'sold', purchased_at = NOW() WHERE id = ?");
             $updateDumpStmt->execute([$buyer_id, $dump['id']]);
 
             $sellerPercentageStmt = $pdo->prepare("SELECT seller_percentage FROM users WHERE id = ?");
@@ -143,7 +143,7 @@ try {
                 INSERT INTO activity_log (user_id, user_name, item_id, buy_itm, item_price, item_type, created_at) 
                 VALUES (?, ?, ?, ?, ?, 'Dumps', NOW())
             ");
-            $insertActivityLogStmt->execute([$buyer_id, $_SESSION['username'], $dump['id'], 'Dump_id=' . $dump['id'], $dump['price']]);
+            $insertActivityLogStmt->execute([$buyer_id, $_SESSION['username'], $dump['id'], 'transaction_did=' . $dump['id'], $dump['price']]);
         }
 
         $pdo->commit();

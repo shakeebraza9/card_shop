@@ -14,9 +14,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $buyer_id = $_SESSION['user_id'];
-$card_id = $_POST['card_id'] ?? null;
+$calrecord_id = $_POST['calrecord_id'] ?? null;
 
-if (!$card_id) {
+if (!$calrecord_id) {
     $response['message'] = 'Card ID is missing.';
     echo json_encode($response);
     exit();
@@ -32,7 +32,7 @@ try {
         WHERE id = ? AND status = 'unsold' 
         FOR UPDATE
     ");
-    $stmt->execute([$card_id]);
+    $stmt->execute([$calrecord_id]);
     $card = $stmt->fetch();
 
     if (!$card) {
@@ -68,7 +68,7 @@ try {
         SET buyer_id = ?, status = 'sold', purchased_at = NOW() 
         WHERE id = ?
     ");
-    $updateCardStmt->execute([$buyer_id, $card_id]);
+    $updateCardStmt->execute([$buyer_id, $calrecord_id]);
 
     // Retrieve seller percentage (default to 100 if not set).
     $sellerPercentageStmt = $pdo->prepare("SELECT seller_percentage FROM users WHERE id = ?");
@@ -95,8 +95,8 @@ try {
     $logData = [
         'user_id'    => $buyer_id,
         'user_name'  => $buyer['username'],
-        'item_id'    => $card_id,
-        'buy_itm'    => "Card_id: $card_id",
+        'item_id'    => $calrecord_id,
+        'buy_itm'    => "calrecord_id: $calrecord_id",
         'item_price' => $price,
         'item_type'  => $payment_method_type
     ];

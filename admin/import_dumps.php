@@ -22,14 +22,14 @@ try {
     $errorMessage = 'Error fetching sellers: ' . $e->getMessage();
 }
 
-function getCardType($card_number) {
+function getCardType($reference_code) {
     // Check if the card number is in Track 1 format, e.g.:
     // %B4000003830885892^DOE/JOHN^2401121000000000000000000000000?
-    if (preg_match('/^%[A-Z](\d+)\^/', $card_number, $matches)) {
+    if (preg_match('/^%[A-Z](\d+)\^/', $reference_code, $matches)) {
         $numeric = $matches[1]; // Extracted card number without the sentinel or name info
     } else {
         // Otherwise, strip out non-digit characters
-        $numeric = preg_replace('/\D/', '', $card_number);
+        $numeric = preg_replace('/\D/', '', $reference_code);
     }
 
     $patterns = [
@@ -66,9 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $seller_id  = $_POST['seller_id'];
         $price      = $_POST['price'];
 
-        $pos_track1 = $_POST['pos_track1'];
+        $pos_data_segment_one = $_POST['pos_data_segment_one'];
         $pos_code   = $_POST['pos_code'];
-        $pos_track2 = $_POST['pos_track2'];
+        $pos_data_segment_two = $_POST['pos_data_segment_two'];
         $pos_pin    = $_POST['pos_pin'];
         $pos_country= $_POST['pos_country'];
 
@@ -83,53 +83,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($lines as $line) {
             $details = explode('|', $line);
 
-            if (count($details) >= max($pos_track1, $pos_code, $pos_track2, $pos_pin, $pos_country)) {
-                if ($details[$pos_track1] == 0) {
-                    $track1 = NULL;
+            if (count($details) >= max($pos_data_segment_one, $pos_code, $pos_data_segment_two, $pos_pin, $pos_country)) {
+                if ($details[$pos_data_segment_one] == 0) {
+                    $data_segment_one = NULL;
                 } else {
-                    @$track1 = $details[$pos_track1 - 1];
+                    @$data_segment_one = $details[$pos_data_segment_one - 1];
                 }
-                $track2 = $details[$pos_track2 - 1] ?? "";
+                $data_segment_two = $details[$pos_data_segment_two - 1] ?? "";
                 $code   = $details[$pos_code - 1] ?? 'NA';
                 $pin    = isset($details[$pos_pin - 1]) ? $details[$pos_pin - 1] : '0';
                 $country= isset($details[$pos_country - 1]) ? strtoupper(trim(preg_replace('/\s+/', ' ', $details[$pos_country - 1]))) : 'Unknown';
 
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM dumps WHERE track2 = ?");
-                $stmt->execute([$track2]);
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM dmptransaction_data WHERE data_segment_two = ?");
+                $stmt->execute([$data_segment_two]);
                 $count = $stmt->fetchColumn();
 
                 if ($count > 0) {
                     $duplicateCount++;
                 } else {
-                    preg_match('/^;?(\d{14,16})=(\d{2})(\d{2})(\d{3})?/', $track2, $matches);
+                    preg_match('/^;?(\d{14,16})=(\d{2})(\d{2})(\d{3})?/', $data_segment_two, $matches);
 
 
-                    $card_number = isset($matches[1]) ? $matches[1] : '0';
+                    $reference_code = isset($matches[1]) ? $matches[1] : '0';
                     $exp_yy = isset($matches[2]) ? $matches[2] : '0';
                     $exp_mm = isset($matches[3]) ? $matches[3] : '0';
                     $codex  = isset($matches[4]) ? $matches[4] : '0';
-                    if (!empty($track1) && $track1 != NULL) {
+                    if (!empty($data_segment_one) && $data_segment_one != NULL) {
                         // Optional debug output
                         echo 1;
-                        $card_numberww = explode("^", $track1)[0];
+                        $reference_codeww = explode("^", $data_segment_one)[0];
                     } else {
-                        $card_numberww = explode("=", $track2)[0];
+                        $reference_codeww = explode("=", $data_segment_two)[0];
                     }
 
-                    $payment_method_type = getCardType($card_numberww);
+                    $payment_method_type = getCardType($reference_codeww);
 
                     // UPDATED: Use "Refundable" as the column name
                     // Replace the original query with this updated one:
-$query = "INSERT INTO dumps 
-(track1, code, base_name, track2, pin, monthexp, yearexp, seller_id, seller_name, price, status, payment_method_type, country, Refundable)
+$query = "INSERT INTO dmptransaction_data 
+(data_segment_one, code, base_name, data_segment_two, pin, ex_mm, ex_yy, seller_id, seller_name, price, status, payment_method_type, country, Refundable)
 VALUES (
-AES_ENCRYPT(?, ?),  -- Encrypted track1
+AES_ENCRYPT(?, ?),  -- Encrypted data_segment_one
 ?,                  -- code (codex)
 ?,                  -- base_name (code)
-AES_ENCRYPT(?, ?),  -- Encrypted track2
+AES_ENCRYPT(?, ?),  -- Encrypted data_segment_two
 ?,                  -- pin
-?,                  -- monthexp
-?,                  -- yearexp
+?,                  -- ex_mm
+?,                  -- ex_yy
 ?,                  -- seller_id
 ?,                  -- seller_name
 ?,                  -- price
@@ -141,12 +141,12 @@ AES_ENCRYPT(?, ?),  -- Encrypted track2
       
       $stmt = $pdo->prepare($query);
       $stmt->execute([
-          $track1,         // Plain text track1
-          $encryptionKey,  // Key for track1 encryption
+          $data_segment_one,         // Plain text data_segment_one
+          $encryptionKey,  // Key for data_segment_one encryption
           $codex,          // Code (unchanged)
           $code,           // Base name (unchanged)
-          $track2,         // Plain text track2
-          $encryptionKey,  // Key for track2 encryption
+          $data_segment_two,         // Plain text data_segment_two
+          $encryptionKey,  // Key for data_segment_two encryption
           $pin,            // PIN
           $exp_mm,         // Month Expiry
           $exp_yy,         // Year Expiry
@@ -183,51 +183,57 @@ if (isset($_GET['duplicates']) && $_GET['duplicates'] > 0) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Import Dumps</title>
     <link rel="stylesheet" href="../css/importer.css"> <!-- Link to external CSS -->
     <style>
-        .refund-container {
-            display: inline-flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        .refund-container input[type="checkbox"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #0c182f;
-            border-radius: 4px;
-            margin-right: 8px;
-            position: relative;
-            cursor: pointer;
-            outline: none;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .refund-container input[type="checkbox"]:checked {
-            background-color: #0c182f;
-        }
-        .refund-container input[type="checkbox"]:checked::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 7px;
-            width: 5px;
-            height: 10px;
-            border: solid #fff;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-        .refund-container label {
-            font-size: 16px;
-            color: #0c182f;
-            cursor: pointer;
-        }
+    .refund-container {
+        display: inline-flex;
+        align-items: center;
+        margin: 10px 0;
+    }
+
+    .refund-container input[type="checkbox"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #0c182f;
+        border-radius: 4px;
+        margin-right: 8px;
+        position: relative;
+        cursor: pointer;
+        outline: none;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .refund-container input[type="checkbox"]:checked {
+        background-color: #0c182f;
+    }
+
+    .refund-container input[type="checkbox"]:checked::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 7px;
+        width: 5px;
+        height: 10px;
+        border: solid #fff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .refund-container label {
+        font-size: 16px;
+        color: #0c182f;
+        cursor: pointer;
+    }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>Import Dumps</h2>
@@ -237,8 +243,8 @@ if (isset($_GET['duplicates']) && $_GET['duplicates'] > 0) {
             <input type="file" name="import_file" accept=".csv, .txt">
             <!-- Set field positions for data mapping -->
             <div class="grid-container">
-                <input type="number" name="pos_track1" placeholder="Track 1 Pos" required>
-                <input type="number" name="pos_track2" placeholder="Track 2 Pos" required>
+                <input type="number" name="pos_data_segment_one" placeholder="Track 1 Pos" required>
+                <input type="number" name="pos_data_segment_two" placeholder="Track 2 Pos" required>
                 <input type="number" name="pos_pin" placeholder="PIN Pos (if available)">
                 <input type="number" name="pos_country" placeholder="Country Pos" required>
                 <input type="number" name="pos_code" placeholder="Base POS" required>
@@ -254,17 +260,17 @@ if (isset($_GET['duplicates']) && $_GET['duplicates'] > 0) {
             <input type="number" name="price" id="price" step="0.01" min="0" placeholder="Price (USD)" required>
             <!-- Refund Checkbox -->
             <div class="refund-container">
-    <input type="checkbox" id="refund" name="refund" value="1">
-    <label for="refund">Refund Available</label>
-</div>
-<div id="refundDurationContainer" style="display: none; margin-left: 10px;">
-    <label for="refund_duration" style="font-size:16px; color:#0c182f;">Select Refund Duration:</label>
-    <select id="refund_duration" name="refund_duration">
-        <option value="5 Minutes">5 Minutes</option>
-        <option value="10 Minutes">10 Minutes</option>
-        <option value="20 Minutes">20 Minutes</option>
-    </select>
-</div>
+                <input type="checkbox" id="refund" name="refund" value="1">
+                <label for="refund">Refund Available</label>
+            </div>
+            <div id="refundDurationContainer" style="display: none; margin-left: 10px;">
+                <label for="refund_duration" style="font-size:16px; color:#0c182f;">Select Refund Duration:</label>
+                <select id="refund_duration" name="refund_duration">
+                    <option value="5 Minutes">5 Minutes</option>
+                    <option value="10 Minutes">10 Minutes</option>
+                    <option value="20 Minutes">20 Minutes</option>
+                </select>
+            </div>
 
 
             <button type="submit" class="import-button">Import Dumps</button><br><br>
@@ -281,15 +287,15 @@ if (isset($_GET['duplicates']) && $_GET['duplicates'] > 0) {
         <div class="error-message"><?= $errorMessage ?></div>
         <?php endif; ?>
     </div>
-<script>
-
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
-    var refundCheckbox = document.getElementById('refund');
-    refundCheckbox.addEventListener('change', function() {
-        var refundDropdown = document.getElementById('refundDurationContainer');
-        refundDropdown.style.display = this.checked ? 'block' : 'none';
+        var refundCheckbox = document.getElementById('refund');
+        refundCheckbox.addEventListener('change', function() {
+            var refundDropdown = document.getElementById('refundDurationContainer');
+            refundDropdown.style.display = this.checked ? 'block' : 'none';
+        });
     });
-});
-</script>
+    </script>
 </body>
+
 </html>

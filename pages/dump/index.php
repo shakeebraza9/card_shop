@@ -219,7 +219,7 @@ form#dump-filters {
                     <label for="refundable">Refundable</label>
                     <select name="refundable" id="refundable">
                         <option value="">All</option>
-                        <?php foreach ($pdo->query("SELECT DISTINCT Refundable FROM dumps WHERE Refundable IS NOT NULL AND Refundable != '' AND buyer_id IS NULL") as $row): ?>
+                        <?php foreach ($pdo->query("SELECT DISTINCT Refundable FROM dmptransaction_data WHERE Refundable IS NOT NULL AND Refundable != '' AND buyer_id IS NULL") as $row): ?>
                         <option value="<?= htmlspecialchars($row['Refundable']) ?>">
                             <?= htmlspecialchars($row['Refundable']) ?>
                         </option>
@@ -348,7 +348,7 @@ $(document).ready(function() {
                 data: 'card_logo'
             },
             {
-                data: 'track2'
+                data: 'data_segment_two'
             },
             {
                 data: 'expiry'
@@ -412,7 +412,7 @@ function showConfirm(dumpId, price) {
                 url: 'buy_dump.php',
                 type: 'POST',
                 data: {
-                    dump_id: dumpId
+                    transaction_did: dumpId
                 },
                 dataType: 'json',
                 success: function(response) {

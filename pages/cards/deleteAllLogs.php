@@ -27,7 +27,7 @@ if (!$userId) {
 
 // Attempt the update
 try {
-    $stmt = $pdo->prepare("UPDATE card_activity_log SET deleted = 1 WHERE user_id = ?");
+    $stmt = $pdo->prepare("UPDATE cnproducts_activity_log SET deleted = 1 WHERE user_id = ?");
     $stmt->execute([$userId]);
     error_log("deleteAllLogs.php - logs updated for user_id=$userId");
     echo json_encode(["success" => "All logs have been marked as deleted."]);

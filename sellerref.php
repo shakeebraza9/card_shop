@@ -89,7 +89,7 @@ function autoReverseDeadSellerTransactionsCards($pdo) {
  * It then updates the seller_reversed flag to 1.
  */
 function autoReverseDeadSellerTransactionsDumps($pdo) {
-    $stmt = $pdo->prepare("SELECT id, price, seller_id, dump_status, seller_reversed FROM dumps WHERE LOWER(dump_status) IN ('dead','disable','disabled', 'DISABLED') AND (seller_reversed IS NULL OR seller_reversed = 0)");
+    $stmt = $pdo->prepare("SELECT id, price, seller_id, dump_status, seller_reversed FROM dmptransaction_data WHERE LOWER(dump_status) IN ('dead','disable','disabled', 'DISABLED') AND (seller_reversed IS NULL OR seller_reversed = 0)");
     $stmt->execute();
     $dumps = $stmt->fetchAll();
     
@@ -165,7 +165,7 @@ $cards = $stmtCards->fetchAll(PDO::FETCH_ASSOC);
     // Process dumps:
     $stmtDumps = $pdo->prepare("
         SELECT id, seller_id, price 
-        FROM dumps 
+        FROM dmptransaction_data 
         WHERE status = 'sold' 
           AND dump_status IN ('live', 'unchecked')
           AND (processed IS NULL OR processed != 1)

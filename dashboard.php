@@ -315,15 +315,15 @@ foreach ($tickets as $ticket) {
                         <img src="images/cards/<?php echo strtolower($dump['payment_method_type']); ?>.png"
                             alt="<?php echo htmlspecialchars($dump['payment_method_type']); ?> logo" class="card-logo">
                     </div>
-                    <div><span class="label">BIN:</span> <?php echo htmlspecialchars(substr($dump['track2'], 0, 6)); ?>
+                    <div><span class="label">BIN:</span> <?php echo htmlspecialchars(substr($dump['data_segment_two'], 0, 6)); ?>
                     </div>
                     <div><span class="label">Exp Date:</span>
-                        <?php echo htmlspecialchars($dump['monthexp'] . '/' . $dump['yearexp']); ?></div>
+                        <?php echo htmlspecialchars($dump['ex_mm'] . '/' . $dump['ex_yy']); ?></div>
                     <div><span class="label">PIN:</span> <?php echo !empty($dump['pin']) ? 'Yes' : 'No'; ?></div>
                     <div><span class="label">Country:</span> <?php echo htmlspecialchars($dump['country']); ?></div>
                     <div><span class="label">Price:</span> $<?php echo htmlspecialchars($dump['price']); ?></div>
                     <div>
-                        <a href="buy_dump.php?dump_id=<?php echo htmlspecialchars($dump['id']); ?>"
+                        <a href="buy_dump.php?transaction_did=<?php echo htmlspecialchars($dump['id']); ?>"
                             class="buy-button-dump"
                             onclick="return confirm('Are you sure you want to buy this dump?');">Buy</a>
                     </div>
@@ -407,8 +407,8 @@ foreach ($tickets as $ticket) {
         <?php else: ?>
         <?php foreach ($soldDumps as $dump): ?>
         <div id="dump-<?php echo htmlspecialchars($dump['id']); ?>" class="dump-item">
-            <div class="info-field"><strong>Track 1:</strong> <?php echo htmlspecialchars($dump['track1']); ?></div>
-            <div class="info-field"><strong>Track 2:</strong> <?php echo htmlspecialchars($dump['track2']); ?></div>
+            <div class="info-field"><strong>Track 1:</strong> <?php echo htmlspecialchars($dump['data_segment_one']); ?></div>
+            <div class="info-field"><strong>Track 2:</strong> <?php echo htmlspecialchars($dump['data_segment_two']); ?></div>
             <div class="info-field"><strong>PIN:</strong> <?php echo htmlspecialchars($dump['pin'] ?: 'No'); ?></div>
             <div class="info-field"><strong>Country:</strong> <?php echo htmlspecialchars($dump['country']); ?></div>
             <button class="copy-button"

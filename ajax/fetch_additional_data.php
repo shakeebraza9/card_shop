@@ -46,7 +46,7 @@ if ($itemType === 'Leads' || $itemType === 'Pages' || $itemType === 'Tools') {
     }
 }elseif ($itemType === 'Dumps') {
   
-    $query = "SELECT * FROM dumps WHERE  id = :item_id";
+    $query = "SELECT * FROM dmptransaction_data WHERE  id = :item_id";
     $stmt = $pdo->prepare($query);
     
     $stmt->bindValue(':item_id', $itemId, PDO::PARAM_INT);
@@ -57,7 +57,7 @@ if ($itemType === 'Leads' || $itemType === 'Pages' || $itemType === 'Tools') {
 
     if ($data) {
       
-        $response = 'Track2: ' . $data['track2'] . ', Code: ' . $data['code'] . ', Track2: ' . $data['track2'] . ', Expiration: ' . $data['monthexp'] . '/' . $data['yearexp'];
+        $response = 'data_segment_two: ' . $data['data_segment_two'] . ', Code: ' . $data['code'] . ', data_segment_two: ' . $data['data_segment_two'] . ', Expiration: ' . $data['ex_mm'] . '/' . $data['ex_yy'];
     } else {
         $response = 'No other Dumps data found.';
     }

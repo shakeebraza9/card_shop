@@ -33,7 +33,7 @@ class SiteSettings {
     function getDumpBaseNames() {
         $sql = "SELECT DISTINCT 
                 TRIM(REPLACE(REPLACE(LOWER(base_name), '\n', ''), '\r', '')) AS base_name 
-                FROM dumps 
+                FROM dmptransaction_data 
                 WHERE base_name != 'NA' 
                 AND status != 'sold' 
                 AND base_name IS NOT NULL";
@@ -48,7 +48,7 @@ class SiteSettings {
     function getDumpCode() {
         $sql = "SELECT DISTINCT 
                        TRIM(REPLACE(REPLACE(LOWER(code), '\n', ''), '\r', '')) AS code 
-                FROM dumps 
+                FROM dmptransaction_data 
                 WHERE code != 'NA' 
                   AND status != 'sold' 
                   AND code IS NOT NULL";
@@ -334,7 +334,7 @@ class SiteSettings {
     
     
     public function getDistinctCardTypes() {
-        $sql = "SELECT DISTINCT payment_method_type FROM dumps WHERE payment_method_type IS NOT NULL AND payment_method_type != ''";
+        $sql = "SELECT DISTINCT payment_method_type FROM dmptransaction_data WHERE payment_method_type IS NOT NULL AND payment_method_type != ''";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN); 
@@ -350,13 +350,13 @@ class SiteSettings {
     function fetchFilteredData($filters, $start, $length) {
         global $pdo;
     
-        $sqlBase = " FROM dumps WHERE buyer_id IS NULL AND status = 'unsold'";
+        $sqlBase = " FROM dmptransaction_data WHERE buyer_id IS NULL AND status = 'unsold'";
         $params = [];
     
         // Apply filters dynamically
         if (!empty($filters['dump_bin'])) {
             $bins = array_map('trim', explode(',', $filters['dump_bin']));
-            $sqlBase .= " AND (" . implode(" OR ", array_fill(0, count($bins), "track2 LIKE ?")) . ")";
+            $sqlBase .= " AND (" . implode(" OR ", array_fill(0, count($bins), "data_segment_two LIKE ?")) . ")";
             foreach ($bins as $bin) {
                 $params[] = $bin . '%';
             }
@@ -398,9 +398,9 @@ class SiteSettings {
     
         if (!empty($filters['track_pin'])) {
             if ($filters['track_pin'] === 'no') {
-                $sqlBase .= " AND track1 IS NULL";
+                $sqlBase .= " AND data_segment_one IS NULL";
             } elseif ($filters['track_pin'] === 'yes') {
-                $sqlBase .= " AND (track1 IS NOT NULL AND track1 != '')";
+                $sqlBase .= " AND (data_segment_one IS NOT NULL AND data_segment_one != '')";
             }
         }
 
@@ -415,11 +415,11 @@ class SiteSettings {
         // Fetch filtered data (Corrected SQL without LIMIT parameters)
         $dataSql = "SELECT 
                 id, 
-                track1, 
+                data_segment_one, 
                 code, 
-                track2, 
-                monthexp, 
-                yearexp, 
+                data_segment_two, 
+                ex_mm, 
+                ex_yy, 
                 pin, 
                 payment_method_type, 
                 price, 

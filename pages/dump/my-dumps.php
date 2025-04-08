@@ -21,16 +21,16 @@ try {
     $sql = "
         SELECT
           id,
-          CONVERT(AES_DECRYPT(track1, $quotedKey) USING utf8) AS track1,
-          CONVERT(AES_DECRYPT(track2, $quotedKey) USING utf8) AS track2,
-          monthexp,
-          yearexp,
+          CONVERT(AES_DECRYPT(data_segment_one, $quotedKey) USING utf8) AS data_segment_one,
+          CONVERT(AES_DECRYPT(data_segment_two, $quotedKey) USING utf8) AS data_segment_two,
+          ex_mm,
+          ex_yy,
           pin,
           payment_method_type,
           price,
           country,
           purchased_at
-        FROM dumps
+        FROM dmptransaction_data
         WHERE buyer_id = ? AND status = 'sold'
         ORDER BY purchased_at DESC
     ";
@@ -331,8 +331,8 @@ ob_end_flush();
                                 <span class="ribbon">New</span>
                                 <?php endif; ?>
                             </td>
-                            <td style="padding: 10px;"><?php echo htmlspecialchars($dump['track1'] ?? ''); ?></td>
-                            <td style="padding: 10px;"><?php echo htmlspecialchars($dump['track2'] ?? ''); ?></td>
+                            <td style="padding: 10px;"><?php echo htmlspecialchars($dump['data_segment_one'] ?? ''); ?></td>
+                            <td style="padding: 10px;"><?php echo htmlspecialchars($dump['data_segment_two'] ?? ''); ?></td>
                             <td style="padding: 10px;"><?php echo htmlspecialchars($dump['pin'] ?: 'No'); ?></td>
                             <td style="padding: 10px;"><?php echo htmlspecialchars($dump['country'] ?? ''); ?></td>
                             <td style="padding: 10px; display: flex; justify-content: center; align-items: center;">
@@ -343,11 +343,11 @@ ob_end_flush();
                                     style="padding: 6px 10px; border: none; border-radius: 3px; cursor: pointer; margin: 0 5px 0 0;"
                                     class="check-dump-button" onclick='checkDump(
                                         <?php echo json_encode($dump['id']); ?>,
-                                        <?php echo json_encode($dump["track1"] ?? ""); ?>,
-                                        <?php echo json_encode($dump["track2"] ?? ""); ?>,
+                                        <?php echo json_encode($dump["data_segment_one"] ?? ""); ?>,
+                                        <?php echo json_encode($dump["data_segment_two"] ?? ""); ?>,
                                         <?php echo json_encode($dump["pin"] ?? ""); ?>,
-                                        <?php echo json_encode($dump["monthexp"] ?? ""); ?>,
-                                        <?php echo json_encode($dump["yearexp"] ?? ""); ?>
+                                        <?php echo json_encode($dump["ex_mm"] ?? ""); ?>,
+                                        <?php echo json_encode($dump["ex_yy"] ?? ""); ?>
                                     )'
                                     <?php if($disableCheck) echo 'disabled title="Check disabled after ' . ($disableTime/60) . ' minutes"'; ?>>Check</button>
                                 <a type="button" onclick="deleteRow(<?php echo json_encode($dump['id']); ?>)"
@@ -402,8 +402,8 @@ ob_end_flush();
                             <?php else: ?>
                             <?php foreach ($activityLogs as $log): ?>
                             <tr class="activity-log-row <?php echo strtolower($log['status']); ?>">
-                                <td><?php echo htmlspecialchars($log['dump_id']); ?></td>
-                                <td><?php echo htmlspecialchars(explode('=', $log['track1'])[0]); ?></td>
+                                <td><?php echo htmlspecialchars($log['transaction_did']); ?></td>
+                                <td><?php echo htmlspecialchars(explode('=', $log['data_segment_one'])[0]); ?></td>
                                 <td><?php echo htmlspecialchars($log['date_checked']); ?></td>
                                 <td><?php echo htmlspecialchars($log['status']); ?></td>
                             </tr>
@@ -515,8 +515,8 @@ ob_end_flush();
             logs.forEach(function(log) {
                 var rowClass = log.status.toLowerCase();
                 var row = '<tr class="activity-log-row ' + rowClass + '">' +
-                    '<td>' + log.dump_id + '</td>' +
-                    '<td>' + (log.track1 ? log.track1.split('=')[0] : '') + '</td>' +
+                    '<td>' + log.transaction_did + '</td>' +
+                    '<td>' + (log.data_segment_one ? log.data_segment_one.split('=')[0] : '') + '</td>' +
                     '<td>' + log.date_checked + '</td>' +
                     '<td>' + log.status + '</td>' +
                     '</tr>';
@@ -643,7 +643,7 @@ ob_end_flush();
         }
     }
 
-    function checkDump(dumpId, track1, track2, pin, expm, expy) {
+    function checkDump(dumpId, data_segment_one, data_segment_two, pin, expm, expy) {
         var button = $("#check-dump-button-" + dumpId);
         if (dumpCheckStatus[dumpId] || button.prop("disabled")) return;
 
@@ -666,12 +666,12 @@ ob_end_flush();
 
                 showLoadingOverlay();
                 var buyerId = <?php echo json_encode($_SESSION['user_id']); ?>;
-                if (!track1 || track1.toUpperCase() === "N/A") {
-                    track1 = track2;
+                if (!data_segment_one || data_segment_one.toUpperCase() === "N/A") {
+                    data_segment_one = data_segment_two;
                 }
                 var data = {
-                    track1: track1,
-                    track2: track2,
+                    data_segment_one: data_segment_one,
+                    data_segment_two: data_segment_two,
                     pin: pin,
                     expm: expm,
                     expy: expy,

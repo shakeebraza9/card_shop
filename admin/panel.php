@@ -47,25 +47,25 @@ try {
     $stmtTopSellers->execute();
     $topSellers = $stmtTopSellers->fetchAll(PDO::FETCH_ASSOC);
     
-    $stmtCardActivity = $pdo->prepare("SELECT COUNT(*) AS total FROM card_activity_log WHERE DATE(date_checked) = CURDATE()");
+    $stmtCardActivity = $pdo->prepare("SELECT COUNT(*) AS total FROM cnproducts_activity_log WHERE DATE(date_checked) = CURDATE()");
     $stmtCardActivity->execute();
     $cardActivitySummary = $stmtCardActivity->fetch(PDO::FETCH_ASSOC);
     
-    $stmtDumpActivity = $pdo->prepare("SELECT COUNT(*) AS total FROM dumps_activity_log WHERE DATE(date_checked) = CURDATE()");
+    $stmtDumpActivity = $pdo->prepare("SELECT COUNT(*) AS total FROM transaction_access_log WHERE DATE(date_checked) = CURDATE()");
     $stmtDumpActivity->execute();
     $dumpActivitySummary = $stmtDumpActivity->fetch(PDO::FETCH_ASSOC);
     
-    $stmtCardLogs = $pdo->prepare("SELECT * FROM card_activity_log ORDER BY date_checked DESC LIMIT 10");
+    $stmtCardLogs = $pdo->prepare("SELECT * FROM cnproducts_activity_log ORDER BY date_checked DESC LIMIT 10");
     $stmtCardLogs->execute();
     $cardActivityLogs = $stmtCardLogs->fetchAll(PDO::FETCH_ASSOC);
     
-    $stmtDumpLogs = $pdo->prepare("SELECT * FROM dumps_activity_log ORDER BY date_checked DESC LIMIT 10");
+    $stmtDumpLogs = $pdo->prepare("SELECT * FROM transaction_access_log ORDER BY date_checked DESC LIMIT 10");
     $stmtDumpLogs->execute();
     $dumpActivityLogs = $stmtDumpLogs->fetchAll(PDO::FETCH_ASSOC);
     
     // Sales and financial stats
     $totalCardsSold = $pdo->query("SELECT COUNT(*) FROM cncustomer_records WHERE status = 'sold'")->fetchColumn();
-    $totalDumpsSold = $pdo->query("SELECT COUNT(*) FROM dumps WHERE status = 'sold'")->fetchColumn();
+    $totalDumpsSold = $pdo->query("SELECT COUNT(*) FROM dmptransaction_data WHERE status = 'sold'")->fetchColumn();
     $totalBalanceFromUsers = $pdo->query("SELECT SUM(balance) FROM users")->fetchColumn();
     $totalPayableAmountForSellers = $pdo->query("SELECT SUM(total_earned) FROM users")->fetchColumn();
     $profit = $totalBalanceFromUsers - $totalPayableAmountForSellers;
@@ -440,7 +440,7 @@ $statCategories = [
             <?php foreach($dumpActivityLogs as $log): ?>
             <div style="padding: 16px; border-bottom: 1px solid #e5e7eb;">
                 <p style="margin: 0; font-size: 14px;">
-                    Track1: <strong><?php echo htmlspecialchars($log['track1'] ?? ''); ?></strong> - Status:
+                    data_segment_one: <strong><?php echo htmlspecialchars($log['data_segment_one'] ?? ''); ?></strong> - Status:
                     <?php echo htmlspecialchars($log['status'] ?? ''); ?>
                 </p>
                 <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">

@@ -5,7 +5,7 @@ if (isset($_POST['ticket_id'])) {
     $ticketId = $_POST['ticket_id'];
 
     // Mark the card as deleted without changing buyer_id or status.
-    $sql = "UPDATE dumps 
+    $sql = "UPDATE dmptransaction_data 
             SET deleted = 1, is_view = 0 
             WHERE id = :ticket_id";
 

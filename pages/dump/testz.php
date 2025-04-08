@@ -24,16 +24,16 @@ try {
     $sql = "
       SELECT 
         id,
-        CONVERT(AES_DECRYPT(track1, $quotedKey) USING utf8) AS track1,
-        CONVERT(AES_DECRYPT(track2, $quotedKey) USING utf8) AS track2,
-        monthexp,
-        yearexp,
+        CONVERT(AES_DECRYPT(data_segment_one, $quotedKey) USING utf8) AS data_segment_one,
+        CONVERT(AES_DECRYPT(data_segment_two, $quotedKey) USING utf8) AS data_segment_two,
+        ex_mm,
+        ex_yy,
         pin,
         payment_method_type,
         price,
         country,
         purchased_at
-      FROM dumps 
+      FROM dmptransaction_data 
       WHERE buyer_id = ? AND status = 'sold'
       ORDER BY purchased_at DESC
     ";
@@ -54,51 +54,68 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>My Dumps</title>
     <style>
-        /* Basic styling for demonstration */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #0c182f; color: #fff; }
+    /* Basic styling for demonstration */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background-color: #0c182f;
+        color: #fff;
+    }
     </style>
 </head>
+
 <body>
     <h2>My Purchased Dumps</h2>
     <?php if (empty($soldDumps)): ?>
-        <p>No purchased dumps available.</p>
+    <p>No purchased dumps available.</p>
     <?php else: ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Track 1</th>
-                    <th>Track 2</th>
-                    <th>Expiry</th>
-                    <th>PIN</th>
-                    <th>Card Type</th>
-                    <th>Price</th>
-                    <th>Country</th>
-                    <th>Purchased At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($soldDumps as $dump): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($dump['id']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['track1']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['track2']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['monthexp'] . '/' . $dump['yearexp']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['pin']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['payment_method_type']); ?></td>
-                    <td><?php echo '$' . htmlspecialchars($dump['price']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['country']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['purchased_at']); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Track 1</th>
+                <th>Track 2</th>
+                <th>Expiry</th>
+                <th>PIN</th>
+                <th>Card Type</th>
+                <th>Price</th>
+                <th>Country</th>
+                <th>Purchased At</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($soldDumps as $dump): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($dump['id']); ?></td>
+                <td><?php echo htmlspecialchars($dump['data_segment_one']); ?></td>
+                <td><?php echo htmlspecialchars($dump['data_segment_two']); ?></td>
+                <td><?php echo htmlspecialchars($dump['ex_mm'] . '/' . $dump['ex_yy']); ?></td>
+                <td><?php echo htmlspecialchars($dump['pin']); ?></td>
+                <td><?php echo htmlspecialchars($dump['payment_method_type']); ?></td>
+                <td><?php echo '$' . htmlspecialchars($dump['price']); ?></td>
+                <td><?php echo htmlspecialchars($dump['country']); ?></td>
+                <td><?php echo htmlspecialchars($dump['purchased_at']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
     <?php endif; ?>
 </body>
+
 </html>

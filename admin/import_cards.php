@@ -27,8 +27,8 @@ try {
 }
 
 // Function to determine card type based on card number
-function getCardType($card_number) {
-    $card_number = preg_replace('/\D/', '', $card_number); // Remove non-numeric characters
+function getCardType($reference_code) {
+    $reference_code = preg_replace('/\D/', '', $reference_code); // Remove non-numeric characters
 
     $patterns = [
         'Visa' => '/^4\d{12,18}$/',  // 13, 16, or 19 digits
@@ -42,7 +42,7 @@ function getCardType($card_number) {
     ];
 
     foreach ($patterns as $type => $pattern) {
-        if (preg_match($pattern, $card_number)) {
+        if (preg_match($pattern, $reference_code)) {
             return $type;
         }
     }
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $section = 'cncustomer_records';
         $seller_id = $_POST['seller_id'];
         $price = $_POST['price'];
-        $pos_card_number = $_POST['pos_card_number'];
+        $pos_reference_code = $_POST['pos_reference_code'];
         $refundable = (isset($_POST['refundable']) && !empty($_POST['refund_duration'])) ? $_POST['refund_duration'] : 'Non-Refundable';
         $pos_exp_month = $_POST['pos_exp_month'];
         $pos_exp_year = $_POST['pos_exp_year'];
@@ -95,9 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $lines = explode("\n", $data);
         foreach ($lines as $line) {
             $details = explode('|', $line);
-            if (count($details) >= max($pos_card_number, $pos_exp_month, $pos_exp_year, $pos_verification_code, $pos_billing_name, $pos_address, $pos_city, $pos_state, $pos_zip, $pos_country, $pos_phone_number, $pos_dob)) {
+            if (count($details) >= max($pos_reference_code, $pos_exp_month, $pos_exp_year, $pos_verification_code, $pos_billing_name, $pos_address, $pos_city, $pos_state, $pos_zip, $pos_country, $pos_phone_number, $pos_dob)) {
                 // Process each card...
-                $card_number = $pos_card_number ? $details[$pos_card_number - 1] : 'N/A';
+                $reference_code = $pos_reference_code ? $details[$pos_reference_code - 1] : 'N/A';
                 $ex_mm = $pos_exp_month ? $details[$pos_exp_month - 1] : 'N/A';
                 $ex_yy = $pos_exp_year ? $details[$pos_exp_year - 1] : 'N/A';
                 $verification_code = $pos_verification_code ? $details[$pos_verification_code - 1] : 'N/A';
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $driverslicense_pos = $driverslicense ? $details[$driverslicense - 1] : 'N/A';
                 $country = $pos_country ? strtoupper(trim(preg_replace('/\s+/', ' ', $details[$pos_country - 1]))) : 'N/A';
                 $phone_number = $pos_phone_number ? $details[$pos_phone_number - 1] : 'N/A';
-                $payment_method_type = getCardType($card_number);
+                $payment_method_type = getCardType($reference_code);
 
                 if (strlen($phone_number) > 20) $phone_number = substr($phone_number, 0, 20);
                 $dob_raw = trim($pos_dob ? $details[$pos_dob - 1] : 'N/A');
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $checkQuery = "SELECT creference_code, ex_mm, ex_yy FROM cncustomer_records WHERE creference_code = ? AND ex_mm = ? AND ex_yy = ?";
                 $checkStmt = $pdo->prepare($checkQuery);
-                $checkStmt->execute([$card_number, $ex_mm, $ex_yy]);
+                $checkStmt->execute([$reference_code, $ex_mm, $ex_yy]);
 
                 if ($checkStmt->rowCount() == 0) {
                     $cc_status = ($refundable !== 'Non-Refundable') ? 'unchecked' : '';
@@ -165,7 +165,7 @@ $query = "INSERT INTO $section (
     sort_code,
     refundable
 ) VALUES (
-    AES_ENCRYPT(?, $quotedKey),  -- card_number encrypted
+    AES_ENCRYPT(?, $quotedKey),  -- reference_code encrypted
     ?,                            -- ex_mm
     ?,                            -- ex_yy
     AES_ENCRYPT(?, $quotedKey),   -- verification_code encrypted
@@ -200,7 +200,7 @@ $query = "INSERT INTO $section (
                     
 $stmt = $pdo->prepare($query);
 $stmt->execute([
-    $card_number,   // for AES_ENCRYPT(card_number)
+    $reference_code,   // for AES_ENCRYPT(reference_code)
     $ex_mm,
     $ex_yy,
     $verification_code,           // for AES_ENCRYPT(verification_code)
@@ -235,7 +235,7 @@ $stmt->execute([
                     $importedCount++;
                 } else {
                     $duplicateCount++;
-                    $duplicateMessage .= "<p class='duplicate-message'>Card with number $card_number already exists and was ignored.</p>";
+                    $duplicateMessage .= "<p class='duplicate-message'>Card with number $reference_code already exists and was ignored.</p>";
                 }
             }
         }
@@ -360,7 +360,7 @@ if (!$errorMessage) {
 
 
             <div class="grid-container">
-                <input type="number" name="pos_card_number" placeholder="Card Number Pos" required>
+                <input type="number" name="pos_reference_code" placeholder="Card Number Pos" required>
                 <input type="number" name="pos_exp_month" placeholder="Exp Month Pos">
                 <input type="number" name="pos_exp_year" placeholder="Exp Year Pos">
                 <input type="number" name="pos_verification_code" placeholder="verification_code Pos" required>

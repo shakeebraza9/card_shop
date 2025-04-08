@@ -24,11 +24,11 @@ $data = [];
 foreach ($result['data'] as $dump) {
     $data[] = [
         'card_logo'   => '<div class="card-logo-wrapper"><img src="'.$urlval.'images/cards/' . strtolower($dump['payment_method_type']) . '.png" alt="' . htmlspecialchars($dump['payment_method_type']) . '" class="card-logo"></div>',
-        'track2'      => htmlspecialchars(substr($dump['track2'], 0, 6)),
-        'expiry'      => htmlspecialchars($dump['monthexp'] . '/' . $dump['yearexp']),
+        'data_segment_two'      => htmlspecialchars(substr($dump['data_segment_two'], 0, 6)),
+        'expiry'      => htmlspecialchars($dump['ex_mm'] . '/' . $dump['ex_yy']),
         'code'        => isset($dump['code']) && !is_null($dump['code']) ? substr($dump['code'], 0, 3) : '',
         'pin'         => !empty($dump['pin']) ? 'Yes' : 'No',
-        'track'       => !empty($dump['track1']) ? 'Yes' : 'No',
+        'track'       => !empty($dump['data_segment_one']) ? 'Yes' : 'No',
         'country'     => htmlspecialchars($dump['country']),
         'base_name' => isset($dump['base_name']) ? htmlspecialchars($dump['base_name']) : '',
     'Refundable' => isset($dump['Refundable']) ? htmlspecialchars($dump['Refundable']) : '',

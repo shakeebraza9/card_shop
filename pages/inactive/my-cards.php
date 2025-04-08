@@ -332,7 +332,7 @@ table button {
             </div>
 
             <div class="main-tbl321">
-                <table id="card_activity_log" class="activity-log-table">
+                <table id="cnproducts_activity_log" class="activity-log-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -479,7 +479,7 @@ $(document).ready(function() {
 
 
 $(document).ready(function() {
-    $('#card_activity_log').DataTable({
+    $('#cnproducts_activity_log').DataTable({
         "paging": true,
         "searching": false,
         "ordering": false,
@@ -573,7 +573,7 @@ $(document).ready(function() {
     });
 
     // Disable log table interactions
-    $('#card_activity_log').on('click', 'tr', function(e) {
+    $('#cnproducts_activity_log').on('click', 'tr', function(e) {
         e.preventDefault();
         handleInactiveAccount();
     });

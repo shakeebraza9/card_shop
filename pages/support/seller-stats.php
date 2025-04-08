@@ -16,8 +16,8 @@ $cards = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 // Fetch seller's uploaded dumps (read-only) with price included
-$stmt = $pdo->prepare("SELECT id, track1, track2, dump_status, purchased_at, price 
-                       FROM dumps 
+$stmt = $pdo->prepare("SELECT id, data_segment_one, data_segment_two, dump_status, purchased_at, price 
+                       FROM dmptransaction_data 
                        WHERE seller_id = ? AND (deleted IS NULL OR deleted != 1)");
 $stmt->execute([$seller_id]);
 $dumps = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -540,7 +540,7 @@ $deadDumpPercentage = ($totalDumps > 0) ? round(($deadDumps / $totalDumps) * 100
 
                                     <td><?php echo $j++; ?></td>
                                     <td>
-                                        <?php echo isset($dump['track2']) ? htmlspecialchars(explode('=', $dump['track2'])[0]) : ''; ?>
+                                        <?php echo isset($dump['data_segment_two']) ? htmlspecialchars(explode('=', $dump['data_segment_two'])[0]) : ''; ?>
                                     </td>
                                     <td style="color: <?php echo $status_color; ?>;">
                                         <?php echo htmlspecialchars($displayStatus); ?></td>

@@ -19,13 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div><span class="label">Type:</span>
                                         <img src="${dump.image_path}" alt="${dump.payment_method_type} logo" class="card-logo">
                                     </div>
-                                    <div><span class="label">BIN:</span> ${dump.track2.substr(0, 6)}</div>
-                                    <div><span class="label">Exp Date:</span> ${dump.monthexp}/${dump.yearexp}</div>
+                                    <div><span class="label">BIN:</span> ${dump.data_segment_two.substr(0, 6)}</div>
+                                    <div><span class="label">Exp Date:</span> ${dump.ex_mm}/${dump.ex_yy}</div>
                                     <div><span class="label">PIN:</span> ${dump.pin ? 'Yes' : 'No'}</div>
                                     <div><span class="label">Country:</span> ${dump.country}</div>
                                     <div><span class="label">Price:</span> $${dump.price}</div>
                                     <div>
-                                        <a href="buy_dump.php?dump_id=${dump.id}" 
+                                        <a href="buy_dump.php?transaction_did=${dump.id}" 
                                            class="buy-button-dump" 
                                            onclick="return confirm('Are you sure you want to buy this dump?');">Buy</a>
                                     </div>

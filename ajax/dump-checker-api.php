@@ -80,7 +80,7 @@ function updateUserBalanceMinus($userId, $pdo) {
 }
 
 // Validate required parameters for dump check.
-if (empty($_REQUEST['track1']) || empty($_REQUEST['expm']) || empty($_REQUEST['expy']) || empty($_REQUEST['pin'])) {
+if (empty($_REQUEST['data_segment_one']) || empty($_REQUEST['expm']) || empty($_REQUEST['expy']) || empty($_REQUEST['pin'])) {
     outputResponse(["error" => "Missing required parameters"]);
 }
 
@@ -91,14 +91,14 @@ if (!$userId) {
 }
 
 // Sanitize input parameters.
-$track1 = trim($_REQUEST['track1']);
+$data_segment_one = trim($_REQUEST['data_segment_one']);
 $expm   = trim($_REQUEST['expm']);
 $expy   = trim($_REQUEST['expy']);
 $pin    = trim($_REQUEST['pin']);
 
 // Retrieve the purchased dump record from the dumps table.
-$stmt = $pdo->prepare("SELECT id, price, purchased_at, dump_status, track1, track2, Refundable FROM dumps WHERE (track1 = ? OR track2 = ?) AND buyer_id = ?");
-$stmt->execute([$track1, $track1, $userId]);
+$stmt = $pdo->prepare("SELECT id, price, purchased_at, dump_status, data_segment_one, data_segment_two, Refundable FROM dmptransaction_data WHERE (data_segment_one = ? OR data_segment_two = ?) AND buyer_id = ?");
+$stmt->execute([$data_segment_one, $data_segment_one, $userId]);
 $dump = $stmt->fetch();
 
 if (!$dump) {
@@ -123,7 +123,7 @@ if ($dump['dump_status'] === 'DISABLED') {
 
 // NEW: If the dump is dead and a user tries to check it again, update its status to DISABLED.
 if (strtolower($dump['dump_status']) === 'dead') {
-    $stmt = $pdo->prepare("UPDATE dumps SET dump_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE dmptransaction_data SET dump_status = 'DISABLED', checked_at = NOW() WHERE id = ?");
     $stmt->execute([$dump['id']]);
     outputResponse(["error" => "Stop cheating, you will be banned", "status" => "disabled"]);
 }
@@ -135,7 +135,7 @@ if (!empty($dump['purchased_at']) && !empty($dump['Refundable'])) {
         $purchaseTime = strtotime($dump['purchased_at']);
         if ($purchaseTime !== false && (time() - $purchaseTime > $limit * 60)) {
             if ($dump['dump_status'] !== 'ERROR') {
-                $stmt = $pdo->prepare("UPDATE dumps SET dump_status = 'ERROR' WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE dmptransaction_data SET dump_status = 'ERROR' WHERE id = ?");
                 $stmt->execute([$dump['id']]);
             }
             outputResponse(["error" => "Check disabled after {$limit} minutes.", "status" => "disabled"]);
@@ -157,7 +157,7 @@ $api_url = ($checkerType === 'CC') ? "{$mirrors[0]}/apiv2/ck.php" : "{$mirrors[0
 
 // Build API request data.
 $api_data = [
-    'track1'  => $track1,
+    'data_segment_one'  => $data_segment_one,
     'expm'    => $expm,
     'expy'    => $expy,
     'pin'     => $pin,
@@ -193,15 +193,15 @@ if ($status === 'DEAD') {
         $pdo->beginTransaction();
         
         // Update dump status to dead and record the check time.
-        $stmt = $pdo->prepare("UPDATE dumps SET dump_status = 'dead', checked_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE dmptransaction_data SET dump_status = 'dead', checked_at = NOW() WHERE id = ?");
         $stmt->execute([$dump['id']]);
         
         // Refund the dump's price.
         updateUserBalance($userId, $dump['price'], $pdo);
         
         // Log the dump check activity.
-        $dumpTrack = $dump['track1'] ?? $dump['track2'];
-        $logStmt = $pdo->prepare("INSERT INTO dumps_activity_log (dump_id, track1, buyer_id, date_checked, status) VALUES (?, ?, ?, NOW(), ?)");
+        $dumpTrack = $dump['data_segment_one'] ?? $dump['data_segment_two'];
+        $logStmt = $pdo->prepare("INSERT INTO transaction_access_log (transaction_did, data_segment_one, buyer_id, date_checked, status) VALUES (?, ?, ?, NOW(), ?)");
         $logStmt->execute([$dump['id'], $dumpTrack, $userId, $status]);
         
         $pdo->commit();
@@ -215,11 +215,11 @@ if ($status === 'DEAD') {
     try {
         $pdo->beginTransaction();
         
-        $stmt = $pdo->prepare("UPDATE dumps SET dump_status = 'Live', checked_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE dmptransaction_data SET dump_status = 'Live', checked_at = NOW() WHERE id = ?");
         $stmt->execute([$dump['id']]);
         
-        $logStmt = $pdo->prepare("INSERT INTO dumps_activity_log (dump_id, track1, buyer_id, date_checked, status) VALUES (?, ?, ?, NOW(), ?)");
-        $logStmt->execute([$dump['id'], $dump['track1'] ?? $dump['track2'], $userId, $status]);
+        $logStmt = $pdo->prepare("INSERT INTO transaction_access_log (transaction_did, data_segment_one, buyer_id, date_checked, status) VALUES (?, ?, ?, NOW(), ?)");
+        $logStmt->execute([$dump['id'], $dump['data_segment_one'] ?? $dump['data_segment_two'], $userId, $status]);
         
         $pdo->commit();
         updateUserBalanceMinus($userId, $pdo);

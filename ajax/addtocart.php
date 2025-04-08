@@ -21,7 +21,7 @@ if ($cardId && $type) {
         if ($type == 'card') {
             $stmt = $pdo->prepare("SELECT id, creference_code, billing_name, price, payment_method_type FROM cncustomer_records WHERE id = :cardId");
         } elseif ($type == 'dump') {
-            $stmt = $pdo->prepare("SELECT id, track1, track2, monthexp, yearexp, pin, price, country, base_name, seller_name, status, payment_method_type FROM dumps WHERE id = :cardId");
+            $stmt = $pdo->prepare("SELECT id, data_segment_one, data_segment_two, ex_mm, ex_yy, pin, price, country, base_name, seller_name, status, payment_method_type FROM dmptransaction_data WHERE id = :cardId");
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid type.']);
             exit;
@@ -38,7 +38,7 @@ if ($cardId && $type) {
                 $cardtpe=$item['payment_method_type']??'visa';
                 $itemData = [
                     'id' => $item['id'],
-                    'bin' => substr($item['track2'], 0, 6), 
+                    'bin' => substr($item['data_segment_two'], 0, 6), 
                     'price' => $item['price'],
                     'image' => '/shop/images/cards/' . strtolower($cardtpe) . '.png',
                     'type' => 'dump'
