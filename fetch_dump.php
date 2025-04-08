@@ -10,7 +10,7 @@ $dumpType = isset($_POST['dump_type']) ? trim($_POST['dump_type']) : 'all';
 $dumpPin = isset($_POST['dump_pin']) ? trim($_POST['dump_pin']) : 'all';
 
 // SQL query to fetch unsold dumps with filtering options
-$sql = "SELECT id, track1, track2, monthexp, yearexp, pin, card_type, price, country 
+$sql = "SELECT id, track1, track2, monthexp, yearexp, pin, payment_method_type, price, country 
         FROM dumps 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
@@ -28,7 +28,7 @@ if (!empty($dumpCountry)) {
     $params[] = strtoupper(trim($dumpCountry));
 }
 if ($dumpType !== 'all') {
-    $sql .= " AND card_type = ?";
+    $sql .= " AND payment_method_type = ?";
     $params[] = $dumpType;
 }
 if ($dumpPin === 'yes') {
@@ -45,7 +45,7 @@ $dumps = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Add image path for each dump type
 foreach ($dumps as &$dump) {
-    $dumpType = strtolower($dump['card_type']);
+    $dumpType = strtolower($dump['payment_method_type']);
     $dump['image_path'] = "https://cardvault.club/shop2/shop/images/cards/{$dumpType}.png";
 }
 

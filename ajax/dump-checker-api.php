@@ -143,8 +143,8 @@ if (!empty($dump['purchased_at']) && !empty($dump['Refundable'])) {
     }
 }
 
-// Determine checker type: if cvv is provided then it's a CC check, otherwise a Dump check.
-$checkerType = isset($_REQUEST['cvv']) ? 'CC' : 'Dump';
+// Determine checker type: if verification_code is provided then it's a CC check, otherwise a Dump check.
+$checkerType = isset($_REQUEST['verification_code']) ? 'CC' : 'Dump';
 
 // API Mirrors
 $mirrors = [
@@ -165,7 +165,7 @@ $api_data = [
     'username'=> 'Mcjic9281'
 ];
 if ($checkerType === 'CC') {
-    $api_data['cvv'] = $_REQUEST['cvv'];
+    $api_data['verification_code'] = $_REQUEST['verification_code'];
 }
 
 // Execute API Request via cURL.

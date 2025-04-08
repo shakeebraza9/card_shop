@@ -26,7 +26,7 @@ try {
           monthexp,
           yearexp,
           pin,
-          card_type,
+          payment_method_type,
           price,
           country,
           purchased_at

@@ -25,7 +25,7 @@ try {
 
     // Lock the dump row for update to avoid concurrent purchases.
     $stmt = $pdo->prepare("
-        SELECT id, track1, card_type, seller_id, price 
+        SELECT id, track1, payment_method_type, seller_id, price 
         FROM dumps 
         WHERE id = ? AND buyer_id IS NULL 
         FOR UPDATE

@@ -19,9 +19,9 @@ if ($cardId && $type) {
     try {
 
         if ($type == 'card') {
-            $stmt = $pdo->prepare("SELECT id, creference_code, name_on_card, price, card_type FROM cncustomer_records WHERE id = :cardId");
+            $stmt = $pdo->prepare("SELECT id, creference_code, billing_name, price, payment_method_type FROM cncustomer_records WHERE id = :cardId");
         } elseif ($type == 'dump') {
-            $stmt = $pdo->prepare("SELECT id, track1, track2, monthexp, yearexp, pin, price, country, base_name, seller_name, status, card_type FROM dumps WHERE id = :cardId");
+            $stmt = $pdo->prepare("SELECT id, track1, track2, monthexp, yearexp, pin, price, country, base_name, seller_name, status, payment_method_type FROM dumps WHERE id = :cardId");
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid type.']);
             exit;
@@ -35,7 +35,7 @@ if ($cardId && $type) {
             
             if ($type == 'dump') {
                 
-                $cardtpe=$item['card_type']??'visa';
+                $cardtpe=$item['payment_method_type']??'visa';
                 $itemData = [
                     'id' => $item['id'],
                     'bin' => substr($item['track2'], 0, 6), 
@@ -50,7 +50,7 @@ if ($cardId && $type) {
                     $_SESSION['dumps'][$cardId] = $itemData;
                 }
             } else {
-                $cardtpe=$item['card_type']??'visa';
+                $cardtpe=$item['payment_method_type']??'visa';
                 $itemData = [
                     'id' => $item['id'],
                     'bin' => substr($item['creference_code'], 0, 6), 

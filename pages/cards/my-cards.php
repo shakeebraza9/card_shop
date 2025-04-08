@@ -340,7 +340,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                         <!-- Column checkboxes -->
                         <label><input type="checkbox" value="1" checked> Card Number</label><br>
                         <label><input type="checkbox" value="2" checked> Expiration</label><br>
-                        <label><input type="checkbox" value="3" checked> CVV</label><br>
+                        <label><input type="checkbox" value="3" checked> verification_code</label><br>
                         <label><input type="checkbox" value="4" checked> Name on Card</label><br>
                         <label><input type="checkbox" value="5" checked> Base Name</label><br>
                         <label><input type="checkbox" value="6" checked> Address</label><br>
@@ -383,7 +383,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                             <th style="padding: 10px; border: 1px solid #ddd; width: 18%;">ID</th>
                             <th style="padding: 10px; border: 1px solid #ddd; width: 18%;">Card Number</th>
                             <th style="padding: 10px; border: 1px solid #ddd;">Expiration</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">CVV</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">verification_code</th>
                             <th style="padding: 10px; border: 1px solid #ddd;">Name on Card</th>
                             <th style="padding: 10px; border: 1px solid #ddd;">Base Name</th>
                             <th style="padding: 10px; border: 1px solid #ddd;">Address</th>
@@ -432,14 +432,14 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                             <?php echo htmlspecialchars($card['creference_code']); ?>
                         </td>
                         <td style="padding: 10px;">
-                            <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['cvv']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['name_on_card']); ?></td>
+                            <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['ex_yy']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['verification_code']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['billing_name']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['base_name'] ?? 'N/A'); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['address']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['city']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['mmn']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['account_number']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['security_hint']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['account_ref']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['sort_code']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['zip']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['country']); ?></td>
@@ -462,8 +462,8 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                                 data-refundable="<?php echo addslashes($card['refundable']); ?>" onclick="return checkCard(
             '<?php echo addslashes($card['creference_code']); ?>',
             '<?php echo addslashes($card['ex_mm']); ?>',
-            '<?php echo addslashes($card['yyyy_exp']); ?>',
-            '<?php echo addslashes($card['cvv'] ?? ''); ?>',
+            '<?php echo addslashes($card['ex_yy']); ?>',
+            '<?php echo addslashes($card['verification_code'] ?? ''); ?>',
             '<?php echo $card['id']; ?>',
             '<?php echo addslashes($card['cc_status']); ?>'
         )" <?php if ($disableCheck) echo 'disabled title="Check disabled after ' . ($disableTime / 60) . ' minutes"'; ?>>Check</button>
@@ -653,7 +653,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
     // ------------------- Modified checkCard Function (No Popup, No Refresh) -------------------
     var isChecking = false;
 
-    function checkCard(cardNumber, expm, expy, cvv, cardId, cardStatus) {
+    function checkCard(cardNumber, expm, expy, verification_code, cardId, cardStatus) {
         // Get the button by its unique ID.
         var $btn = $('#check-button-' + cardId);
 
@@ -692,7 +692,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                         cardnum: cardNumber,
                         expm: expm,
                         expy: expy,
-                        cvv: cvv,
+                        verification_code: verification_code,
                         user_id: userId
                     },
                     success: function(response) {

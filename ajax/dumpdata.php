@@ -23,7 +23,7 @@ $data = [];
 
 foreach ($result['data'] as $dump) {
     $data[] = [
-        'card_logo'   => '<div class="card-logo-wrapper"><img src="'.$urlval.'images/cards/' . strtolower($dump['card_type']) . '.png" alt="' . htmlspecialchars($dump['card_type']) . '" class="card-logo"></div>',
+        'card_logo'   => '<div class="card-logo-wrapper"><img src="'.$urlval.'images/cards/' . strtolower($dump['payment_method_type']) . '.png" alt="' . htmlspecialchars($dump['payment_method_type']) . '" class="card-logo"></div>',
         'track2'      => htmlspecialchars(substr($dump['track2'], 0, 6)),
         'expiry'      => htmlspecialchars($dump['monthexp'] . '/' . $dump['yearexp']),
         'code'        => isset($dump['code']) && !is_null($dump['code']) ? substr($dump['code'], 0, 3) : '',

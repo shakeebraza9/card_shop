@@ -27,7 +27,7 @@ try {
 
     // Lock the card row to prevent concurrent purchases.
     $stmt = $pdo->prepare("
-        SELECT id, seller_id, price, creference_code, card_type 
+        SELECT id, seller_id, price, creference_code, payment_method_type 
         FROM cncustomer_records 
         WHERE id = ? AND status = 'unsold' 
         FOR UPDATE
@@ -44,7 +44,7 @@ try {
 
     $price = $card['price'];
     $seller_id = $card['seller_id'];
-    $card_type = 'Cards';
+    $payment_method_type = 'Cards';
 
     // Check buyer's balance.
     $stmt = $pdo->prepare("SELECT balance, username FROM users WHERE id = ?");
@@ -98,7 +98,7 @@ try {
         'item_id'    => $card_id,
         'buy_itm'    => "Card_id: $card_id",
         'item_price' => $price,
-        'item_type'  => $card_type
+        'item_type'  => $payment_method_type
     ];
     $settings->insertActivityLog($logData);
 

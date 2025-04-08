@@ -21,21 +21,21 @@ function formatCardData($creditCards) {
     foreach ($creditCards as $card) {
         $otherinfo = (!empty($card['otherinfo']) && $card['otherinfo'] != 'NA' && $card['otherinfo'] != 'No') ? 'Yes' : 'No';
 
-        if (is_null($card['card_type'])) {
+        if (is_null($card['payment_method_type'])) {
             $cardType = getCardType($card['creference_code'] ?? '');
             $cardimg = strtolower($cardType);
         } else { 
-            $cardimg = strtolower($card['card_type']);
+            $cardimg = strtolower($card['payment_method_type']);
         }
         
         $formattedData[] = [
             'card_logo'   => '<div class="card-logo-wrapper"><img src="https://cardvault.club/shop2/shop3/images/cards/' . $cardimg . '.png" alt="Card Logo" class="card-logo"></div>',
             'email'       => htmlspecialchars($card['email'] ?? 'NA'),
             'phone_number'       => htmlspecialchars($card['phone_number'] ?? 'NA'),
-            'mmn'       => htmlspecialchars($card['mmn'] ?? 'NA'),
+            'security_hint'       => htmlspecialchars($card['security_hint'] ?? 'NA'),
             'date_of_birth'       => htmlspecialchars($card['date_of_birth'] ?? 'NA'),
             'creference_code' => htmlspecialchars(substr($card['creference_code'] ?? '', 0, 6)),
-            'expiry'      => htmlspecialchars($card['ex_mm'] ?? '') . '/' . htmlspecialchars($card['yyyy_exp'] ?? ''),
+            'expiry'      => htmlspecialchars($card['ex_mm'] ?? '') . '/' . htmlspecialchars($card['ex_yy'] ?? ''),
             'country'     => htmlspecialchars($card['country'] ?? ''),
             'state'       => htmlspecialchars($card['state'] ?? ''),
             'city'        => htmlspecialchars($card['city'] ?? ''),

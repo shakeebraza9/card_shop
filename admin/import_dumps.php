@@ -116,12 +116,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $card_numberww = explode("=", $track2)[0];
                     }
 
-                    $card_type = getCardType($card_numberww);
+                    $payment_method_type = getCardType($card_numberww);
 
                     // UPDATED: Use "Refundable" as the column name
                     // Replace the original query with this updated one:
 $query = "INSERT INTO dumps 
-(track1, code, base_name, track2, pin, monthexp, yearexp, seller_id, seller_name, price, status, card_type, country, Refundable)
+(track1, code, base_name, track2, pin, monthexp, yearexp, seller_id, seller_name, price, status, payment_method_type, country, Refundable)
 VALUES (
 AES_ENCRYPT(?, ?),  -- Encrypted track1
 ?,                  -- code (codex)
@@ -134,7 +134,7 @@ AES_ENCRYPT(?, ?),  -- Encrypted track2
 ?,                  -- seller_name
 ?,                  -- price
 'unsold',           -- status
-?,                  -- card_type
+?,                  -- payment_method_type
 ?,                  -- country
 ?                   -- Refundable
 )";
@@ -153,7 +153,7 @@ AES_ENCRYPT(?, ?),  -- Encrypted track2
           $seller_id,      // Seller ID
           $seller_name,    // Seller Name
           $price,          // Price
-          $card_type,      // Card Type
+          $payment_method_type,      // Card Type
           $country,        // Country
           $refund          // Refundable status
       ]);

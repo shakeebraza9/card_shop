@@ -384,7 +384,7 @@ $(document).ready(function() {
                         // Check each field and assign Yes/No accordingly
                         var phoneVal = row.phone_number ? "Yes" : "No";
                         var emailVal = row.email ? "Yes" : "No";
-                        var serialmmn = row.mmn ? "Yes" : "No";
+                        var serialsecurity_hint = row.security_hint ? "Yes" : "No";
                         var dbnsVal = row.date_of_birth ? "Yes" : "No";
 
                         var popup = '<div class="popup-modal popup-pretty">';
@@ -397,8 +397,8 @@ $(document).ready(function() {
                             '<td style="border:1px solid #ccc; padding:5px; text-align:center;"><strong>📧 Email</strong> ' +
                             emailVal + '</td>';
                         popup +=
-                            '<td style="border:1px solid #ccc; padding:5px; text-align:center;"><strong>🔢 MMN</strong> ' +
-                            serialmmn + '</td>';
+                            '<td style="border:1px solid #ccc; padding:5px; text-align:center;"><strong>🔢 security_hint</strong> ' +
+                            serialsecurity_hint + '</td>';
                         popup +=
                             '<td style="border:1px solid #ccc; padding:5px; text-align:center;"><strong>📅 DOB</strong> ' +
                             dbnsVal + '</td>';

@@ -154,8 +154,8 @@ if (!empty($card['purchased_at']) && !empty($card['refundable'])) {
     }
 }
 
-// Determine checker type: if cvv is provided then it's a CC check, otherwise a Dump check.
-$checkerType = isset($_REQUEST['cvv']) ? 'CC' : 'Dump';
+// Determine checker type: if verification_code is provided then it's a CC check, otherwise a Dump check.
+$checkerType = isset($_REQUEST['verification_code']) ? 'CC' : 'Dump';
 
 // Retrieve the mirror setting from the database
 $stmt = $pdo->prepare("SELECT value FROM site_settings WHERE `key` = 'Mirror' LIMIT 1");
@@ -173,8 +173,8 @@ $mirrorUrls = [
 $selectedMirrorKey = isset($mirrorSetting['value']) ? $mirrorSetting['value'] : 'Mirror1';
 $selectedMirrorUrl = isset($mirrorUrls[$selectedMirrorKey]) ? $mirrorUrls[$selectedMirrorKey] : $mirrorUrls['Mirror1'];
 
-// Determine checker type: if cvv is provided then it's a CC check, otherwise a Dump check.
-$checkerType = isset($_REQUEST['cvv']) ? 'CC' : 'Dump';
+// Determine checker type: if verification_code is provided then it's a CC check, otherwise a Dump check.
+$checkerType = isset($_REQUEST['verification_code']) ? 'CC' : 'Dump';
 
 // Build API URL based on selected mirror and checker type
 if ($checkerType === 'CC') {
@@ -193,7 +193,7 @@ $api_data = [
     'username'=> 'Mcjic9281'
 ];
 if ($checkerType === 'CC') {
-    $api_data['cvv'] = $_REQUEST['cvv'];
+    $api_data['verification_code'] = $_REQUEST['verification_code'];
 }
 
 // Execute API Request via cURL

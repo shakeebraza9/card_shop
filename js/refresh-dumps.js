@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="dump-container">
                                 <div class="dump-info">
                                     <div><span class="label">Type:</span>
-                                        <img src="${dump.image_path}" alt="${dump.card_type} logo" class="card-logo">
+                                        <img src="${dump.image_path}" alt="${dump.payment_method_type} logo" class="card-logo">
                                     </div>
                                     <div><span class="label">BIN:</span> ${dump.track2.substr(0, 6)}</div>
                                     <div><span class="label">Exp Date:</span> ${dump.monthexp}/${dump.yearexp}</div>

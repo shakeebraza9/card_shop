@@ -67,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $refundable = (isset($_POST['refundable']) && !empty($_POST['refund_duration'])) ? $_POST['refund_duration'] : 'Non-Refundable';
         $pos_exp_month = $_POST['pos_exp_month'];
         $pos_exp_year = $_POST['pos_exp_year'];
-        $pos_cvv = $_POST['pos_cvv'];
-        $pos_name_on_card = $_POST['pos_name_on_card'];
+        $pos_verification_code = $_POST['pos_verification_code'];
+        $pos_billing_name = $_POST['pos_billing_name'];
         $pos_address = $_POST['pos_address'];
         $pos_city = $_POST['pos_city'];
         $pos_state = $_POST['pos_state'];
@@ -78,14 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pos_dob = $_POST['pos_dob'];
         $base_name = $_POST['base_name'];
         $otherinfo = $_POST['otherinfo'];
-        $pos_mmn = $_POST['pos_mmn'];
-        $pos_account_number = $_POST['pos_account_number'];
+        $pos_security_hint = $_POST['pos_security_hint'];
+        $pos_account_ref = $_POST['pos_account_ref'];
         $email = $_POST['email_address'];
         $sinssn = $_POST['sinss'];
         $pin = $_POST['pin'];
         $driverslicense = $_POST['driverslicense'];
         $pos_sort_code = $_POST['pos_sort_code'];
-        $pos_cardholder_name = $_POST['pos_name_on_card'];
+        $pos_customer_name = $_POST['pos_billing_name'];
 
         $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
         $stmt->execute([$seller_id]);
@@ -95,38 +95,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $lines = explode("\n", $data);
         foreach ($lines as $line) {
             $details = explode('|', $line);
-            if (count($details) >= max($pos_card_number, $pos_exp_month, $pos_exp_year, $pos_cvv, $pos_name_on_card, $pos_address, $pos_city, $pos_state, $pos_zip, $pos_country, $pos_phone_number, $pos_dob)) {
+            if (count($details) >= max($pos_card_number, $pos_exp_month, $pos_exp_year, $pos_verification_code, $pos_billing_name, $pos_address, $pos_city, $pos_state, $pos_zip, $pos_country, $pos_phone_number, $pos_dob)) {
                 // Process each card...
                 $card_number = $pos_card_number ? $details[$pos_card_number - 1] : 'N/A';
                 $ex_mm = $pos_exp_month ? $details[$pos_exp_month - 1] : 'N/A';
-                $yyyy_exp = $pos_exp_year ? $details[$pos_exp_year - 1] : 'N/A';
-                $cvv = $pos_cvv ? $details[$pos_cvv - 1] : 'N/A';
-                $name_on_card = $pos_name_on_card ? $details[$pos_name_on_card - 1] : 'N/A';
+                $ex_yy = $pos_exp_year ? $details[$pos_exp_year - 1] : 'N/A';
+                $verification_code = $pos_verification_code ? $details[$pos_verification_code - 1] : 'N/A';
+                $billing_name = $pos_billing_name ? $details[$pos_billing_name - 1] : 'N/A';
                 $address = $pos_address ? $details[$pos_address - 1] : 'N/A';
                 $city = $pos_city ? $details[$pos_city - 1] : 'N/A';
                 $base_name_pos = $base_name ? $details[$base_name - 1] : 'N/A';
-                $pos_mmn_pos = $pos_mmn ? $details[$pos_mmn - 1] : 'N/A';
-                $pos_account_number_pos = $pos_account_number ? $details[$pos_account_number - 1] : 'N/A';
+                $pos_security_hint_pos = $pos_security_hint ? $details[$pos_security_hint - 1] : 'N/A';
+                $pos_account_ref_pos = $pos_account_ref ? $details[$pos_account_ref - 1] : 'N/A';
                 $sort_code = $pos_sort_code ? $details[$pos_sort_code - 1] : 'N/A';
                 $state = $pos_state ? $details[$pos_state - 1] : 'N/A';
                 $zip = $pos_zip ? $details[$pos_zip - 1] : 'N/A';
                 $email_pos = $email ? $details[$email - 1] : 'N/A';
                 $sinssn_pos = $sinssn ? $details[$sinssn - 1] : 'N/A';
                 $pin_pos = $pin ? $details[$pin - 1] : 'N/A';
-                $cardholder_name = $pos_name_on_card ? $details[$pos_name_on_card - 1] : 'N/A';
+                $customer_name = $pos_billing_name ? $details[$pos_billing_name - 1] : 'N/A';
                 $driverslicense_pos = $driverslicense ? $details[$driverslicense - 1] : 'N/A';
                 $country = $pos_country ? strtoupper(trim(preg_replace('/\s+/', ' ', $details[$pos_country - 1]))) : 'N/A';
                 $phone_number = $pos_phone_number ? $details[$pos_phone_number - 1] : 'N/A';
-                $card_type = getCardType($card_number);
+                $payment_method_type = getCardType($card_number);
 
                 if (strlen($phone_number) > 20) $phone_number = substr($phone_number, 0, 20);
                 $dob_raw = trim($pos_dob ? $details[$pos_dob - 1] : 'N/A');
                 $dob_obj = DateTime::createFromFormat('d/m/Y', $dob_raw) ?: DateTime::createFromFormat('Y-m-d', $dob_raw);
                 $dob = $dob_obj ? $dob_obj->format('Y-m-d') : null;
 
-                $checkQuery = "SELECT creference_code, ex_mm, yyyy_exp FROM cncustomer_records WHERE creference_code = ? AND ex_mm = ? AND yyyy_exp = ?";
+                $checkQuery = "SELECT creference_code, ex_mm, ex_yy FROM cncustomer_records WHERE creference_code = ? AND ex_mm = ? AND ex_yy = ?";
                 $checkStmt = $pdo->prepare($checkQuery);
-                $checkStmt->execute([$card_number, $ex_mm, $yyyy_exp]);
+                $checkStmt->execute([$card_number, $ex_mm, $ex_yy]);
 
                 if ($checkStmt->rowCount() == 0) {
                     $cc_status = ($refundable !== 'Non-Refundable') ? 'unchecked' : '';
@@ -137,10 +137,10 @@ $quotedKey = $pdo->quote($encryptionKey);
 $query = "INSERT INTO $section (
     creference_code,
     ex_mm,
-    yyyy_exp,
-    cvv,
-    name_on_card,
-    cardholder_name,
+    ex_yy,
+    verification_code,
+    billing_name,
+    customer_name,
     address,
     city,
     state,
@@ -152,12 +152,12 @@ $query = "INSERT INTO $section (
     seller_name,
     price,
     section,
-    card_type,
+    payment_method_type,
     cc_status,
     base_name,
     otherinfo,
-    mmn,
-    account_number,
+    security_hint,
+    account_ref,
     email,
     sinssn,
     pin,
@@ -167,10 +167,10 @@ $query = "INSERT INTO $section (
 ) VALUES (
     AES_ENCRYPT(?, $quotedKey),  -- card_number encrypted
     ?,                            -- ex_mm
-    ?,                            -- yyyy_exp
-    AES_ENCRYPT(?, $quotedKey),   -- cvv encrypted
-    ?,                            -- name_on_card
-    ?,                            -- cardholder_name
+    ?,                            -- ex_yy
+    AES_ENCRYPT(?, $quotedKey),   -- verification_code encrypted
+    ?,                            -- billing_name
+    ?,                            -- customer_name
     ?,                            -- address
     ?,                            -- city
     ?,                            -- state
@@ -182,12 +182,12 @@ $query = "INSERT INTO $section (
     ?,                            -- seller_name
     ?,                            -- price
     ?,                            -- section
-    ?,                            -- card_type
+    ?,                            -- payment_method_type
     ?,                            -- cc_status
     ?,                            -- base_name
     ?,                            -- otherinfo
-    ?,                            -- mmn
-    ?,                            -- account_number
+    ?,                            -- security_hint
+    ?,                            -- account_ref
     ?,                            -- email
     ?,                            -- sinssn
     ?,                            -- pin
@@ -202,10 +202,10 @@ $stmt = $pdo->prepare($query);
 $stmt->execute([
     $card_number,   // for AES_ENCRYPT(card_number)
     $ex_mm,
-    $yyyy_exp,
-    $cvv,           // for AES_ENCRYPT(cvv)
-    $name_on_card,
-    $cardholder_name,
+    $ex_yy,
+    $verification_code,           // for AES_ENCRYPT(verification_code)
+    $billing_name,
+    $customer_name,
     $address,
     $city,
     $state,
@@ -217,12 +217,12 @@ $stmt->execute([
     $seller_name,
     $price,
     $section,
-    $card_type,
+    $payment_method_type,
     $cc_status,
     $base_name_pos,
     $otherinfo,
-    $pos_mmn_pos,
-    $pos_account_number_pos,
+    $pos_security_hint_pos,
+    $pos_account_ref_pos,
     $email_pos,
     $sinssn_pos,
     $pin_pos,
@@ -363,8 +363,8 @@ if (!$errorMessage) {
                 <input type="number" name="pos_card_number" placeholder="Card Number Pos" required>
                 <input type="number" name="pos_exp_month" placeholder="Exp Month Pos">
                 <input type="number" name="pos_exp_year" placeholder="Exp Year Pos">
-                <input type="number" name="pos_cvv" placeholder="CVV Pos" required>
-                <input type="number" name="pos_name_on_card" placeholder="Name on Card Pos" required>
+                <input type="number" name="pos_verification_code" placeholder="verification_code Pos" required>
+                <input type="number" name="pos_billing_name" placeholder="Name on Card Pos" required>
                 <input type="number" name="pos_address" placeholder="Address Pos" required>
                 <input type="number" name="pos_city" placeholder="City Pos" required>
                 <input type="number" name="pos_state" placeholder="State Pos" required>
@@ -372,8 +372,8 @@ if (!$errorMessage) {
                 <input type="number" name="pos_country" placeholder="Country Pos" required>
                 <input type="number" name="pos_phone_number" placeholder="Phone Number Pos" required>
                 <input type="number" name="pos_dob" placeholder="DOB Pos" required>
-                <input type="number" name="pos_mmn" placeholder="MMN Pos">
-                <input type="number" name="pos_account_number" placeholder="Account Number Pos">
+                <input type="number" name="pos_security_hint" placeholder="security_hint Pos">
+                <input type="number" name="pos_account_ref" placeholder="Account Number Pos">
                 <input type="number" name="pos_sort_code" placeholder="Sort Code Pos">
                 <input type="number" name="base_name" placeholder="Base Pose">
                 <input type="number" name="email_address" placeholder="Email Address">

@@ -265,7 +265,7 @@ class SiteSettings {
             $params[] = "%$ccZip%";
         }
         if ($ccType !== 'all') {
-            $sql .= " AND card_type = ?";
+            $sql .= " AND payment_method_type = ?";
             $params[] = $ccType;
         }
         if ($basename !== 'all') {
@@ -334,14 +334,14 @@ class SiteSettings {
     
     
     public function getDistinctCardTypes() {
-        $sql = "SELECT DISTINCT card_type FROM dumps WHERE card_type IS NOT NULL AND card_type != ''";
+        $sql = "SELECT DISTINCT payment_method_type FROM dumps WHERE payment_method_type IS NOT NULL AND payment_method_type != ''";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN); 
     }
 
     public function getDistinctCardTypes2() {
-        $sql = "SELECT DISTINCT card_type FROM cncustomer_records WHERE card_type IS NOT NULL AND card_type != ''";
+        $sql = "SELECT DISTINCT payment_method_type FROM cncustomer_records WHERE payment_method_type IS NOT NULL AND payment_method_type != ''";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN); 
@@ -368,7 +368,7 @@ class SiteSettings {
         }
     
         if (!empty($filters['dump_type']) && $filters['dump_type'] !== 'all') {
-            $sqlBase .= " AND card_type = ?";
+            $sqlBase .= " AND payment_method_type = ?";
             $params[] = $filters['dump_type'];
         }
     
@@ -421,7 +421,7 @@ class SiteSettings {
                 monthexp, 
                 yearexp, 
                 pin, 
-                card_type, 
+                payment_method_type, 
                 price, 
                 country,
                 base_name,

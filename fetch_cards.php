@@ -12,7 +12,7 @@ $ccZip = isset($_POST['cc_zip']) ? trim($_POST['cc_zip']) : '';
 $ccType = isset($_POST['cc_type']) ? trim($_POST['cc_type']) : 'all';
 $cardsPerPage = isset($_POST['cards_per_page']) ? (int)$_POST['cards_per_page'] : 10;
 
-$sql = "SELECT id, card_type, creference_code, ex_mm, yyyy_exp, country, state, city, zip, price 
+$sql = "SELECT id, payment_method_type, creference_code, ex_mm, ex_yy, country, state, city, zip, price 
         FROM cncustomer_records 
         WHERE buyer_id IS NULL AND status = 'unsold' ";
 $params = [];
@@ -42,7 +42,7 @@ if (!empty($ccZip)) {
     $params[] = $ccZip;
 }
 if ($ccType !== 'all') {
-    $sql .= " AND card_type = ?";
+    $sql .= " AND payment_method_type = ?";
     $params[] = $ccType;
 }
 
@@ -53,7 +53,7 @@ $creditCards = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Add image path for each card type
 foreach ($creditCards as &$card) {
-$cardType = strtolower($card['card_type']); // Normalize to lowercase
+$cardType = strtolower($card['payment_method_type']); // Normalize to lowercase
 $card['image_path'] = "https://cardvault.club/shop2/shop/images/cards/{$cardType}.png";
 
 }

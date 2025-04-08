@@ -29,7 +29,7 @@ try {
         monthexp,
         yearexp,
         pin,
-        card_type,
+        payment_method_type,
         price,
         country,
         purchased_at
@@ -91,7 +91,7 @@ try {
                     <td><?php echo htmlspecialchars($dump['track2']); ?></td>
                     <td><?php echo htmlspecialchars($dump['monthexp'] . '/' . $dump['yearexp']); ?></td>
                     <td><?php echo htmlspecialchars($dump['pin']); ?></td>
-                    <td><?php echo htmlspecialchars($dump['card_type']); ?></td>
+                    <td><?php echo htmlspecialchars($dump['payment_method_type']); ?></td>
                     <td><?php echo '$' . htmlspecialchars($dump['price']); ?></td>
                     <td><?php echo htmlspecialchars($dump['country']); ?></td>
                     <td><?php echo htmlspecialchars($dump['purchased_at']); ?></td>

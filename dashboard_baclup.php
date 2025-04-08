@@ -73,7 +73,7 @@ $ccType = isset($_POST['cc_type']) ? trim($_POST['cc_type']) : 'all';
 $cardsPerPage = isset($_POST['cards_per_page']) ? (int)$_POST['cards_per_page'] : 10;
 
 // Build SQL query for credit cards based on filters
-$sql = "SELECT id, card_type, creference_code, ex_mm, yyyy_exp, country, state, city, zip, price 
+$sql = "SELECT id, payment_method_type, creference_code, ex_mm, ex_yy, country, state, city, zip, price 
         FROM cncustomer_records 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
@@ -103,7 +103,7 @@ if (!empty($ccZip)) {
     $params[] = $ccZip;
 }
 if ($ccType !== 'all') {
-    $sql .= " AND card_type = ?";
+    $sql .= " AND payment_method_type = ?";
     $params[] = $ccType;
 }
 
@@ -132,7 +132,7 @@ $dumpPin = isset($_POST['dump_pin']) ? trim($_POST['dump_pin']) : 'all';
 $dumpsPerPage = isset($_POST['dumps_per_page']) ? (int)$_POST['dumps_per_page'] : 10;
 
 // Build SQL query for dumps based on filters
-$sql = "SELECT id, track1, track2, monthexp, yearexp, pin, card_type, price, country 
+$sql = "SELECT id, track1, track2, monthexp, yearexp, pin, payment_method_type, price, country 
         FROM dumps 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
@@ -150,7 +150,7 @@ if (!empty($dumpCountry)) {
     $params[] = strtoupper(trim($dumpCountry));
 }
 if ($dumpType !== 'all') {
-    $sql .= " AND card_type = ?";
+    $sql .= " AND payment_method_type = ?";
     $params[] = $dumpType;
 }
 if ($dumpPin === 'yes') {
@@ -628,12 +628,12 @@ foreach ($tickets as $ticket) {
                     <?php foreach ($creditCards as $card): ?>
                     <div class="credit-card-container">
                         <div class="credit-card-info">
-                            <div><span class="label">Type:</span> <?php echo htmlspecialchars($card['card_type']); ?>
+                            <div><span class="label">Type:</span> <?php echo htmlspecialchars($card['payment_method_type']); ?>
                             </div>
                             <div><span class="label">BIN:</span>
                                 <?php echo htmlspecialchars(substr($card['creference_code'], 0, 6)); ?></div>
                             <div><span class="label">Exp Date:</span>
-                                <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
+                                <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['ex_yy']); ?></div>
                             <div><span class="label">Country:</span> <?php echo htmlspecialchars($card['country']); ?>
                             </div>
                             <div><span class="label">State:</span>
@@ -705,8 +705,8 @@ foreach ($tickets as $ticket) {
                     <div class="dump-container">
                         <div class="dump-info">
                             <div><span class="label">Type:</span>
-                                <img src="images/cards/<?php echo strtolower($dump['card_type']); ?>.png"
-                                    alt="<?php echo htmlspecialchars($dump['card_type']); ?> logo" class="card-logo">
+                                <img src="images/cards/<?php echo strtolower($dump['payment_method_type']); ?>.png"
+                                    alt="<?php echo htmlspecialchars($dump['payment_method_type']); ?> logo" class="card-logo">
                             </div>
                             <div><span class="label">BIN:</span>
                                 <?php echo htmlspecialchars(substr($dump['track2'], 0, 6)); ?></div>
@@ -741,10 +741,10 @@ foreach ($tickets as $ticket) {
                     <div class="info-field"><strong>Card Number:</strong>
                         <?php echo htmlspecialchars($card['creference_code']); ?></div>
                     <div class="info-field"><strong>Expiration:</strong>
-                        <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
-                    <div class="info-field"><strong>CVV:</strong> <?php echo htmlspecialchars($card['cvv']); ?></div>
+                        <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['ex_yy']); ?></div>
+                    <div class="info-field"><strong>verification_code:</strong> <?php echo htmlspecialchars($card['verification_code']); ?></div>
                     <div class="info-field"><strong>Name on Card:</strong>
-                        <?php echo htmlspecialchars($card['name_on_card']); ?></div>
+                        <?php echo htmlspecialchars($card['billing_name']); ?></div>
                     <div class="info-field"><strong>Address:</strong> <?php echo htmlspecialchars($card['address']); ?>
                     </div>
                     <div class="info-field"><strong>City:</strong> <?php echo htmlspecialchars($card['city']); ?></div>

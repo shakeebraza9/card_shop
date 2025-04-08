@@ -240,11 +240,11 @@ foreach ($tickets as $ticket) {
             <?php foreach ($creditCards as $card): ?>
             <div class="credit-card-container">
                 <div class="credit-card-info">
-                    <div><span class="label">Type:</span> <?php echo htmlspecialchars($card['card_type']); ?></div>
+                    <div><span class="label">Type:</span> <?php echo htmlspecialchars($card['payment_method_type']); ?></div>
                     <div><span class="label">BIN:</span>
                         <?php echo htmlspecialchars(substr($card['creference_code'], 0, 6)); ?></div>
                     <div><span class="label">Exp Date:</span>
-                        <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
+                        <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['ex_yy']); ?></div>
                     <div><span class="label">Country:</span> <?php echo htmlspecialchars($card['country']); ?></div>
                     <div><span class="label">State:</span> <?php echo htmlspecialchars($card['state'] ?: 'N/A'); ?>
                     </div>
@@ -312,8 +312,8 @@ foreach ($tickets as $ticket) {
             <div class="dump-container">
                 <div class="dump-info">
                     <div><span class="label">Type:</span>
-                        <img src="images/cards/<?php echo strtolower($dump['card_type']); ?>.png"
-                            alt="<?php echo htmlspecialchars($dump['card_type']); ?> logo" class="card-logo">
+                        <img src="images/cards/<?php echo strtolower($dump['payment_method_type']); ?>.png"
+                            alt="<?php echo htmlspecialchars($dump['payment_method_type']); ?> logo" class="card-logo">
                     </div>
                     <div><span class="label">BIN:</span> <?php echo htmlspecialchars(substr($dump['track2'], 0, 6)); ?>
                     </div>
@@ -346,10 +346,10 @@ foreach ($tickets as $ticket) {
                 <?php echo htmlspecialchars($card['creference_code']); ?>
             </div>
             <div class="info-field"><strong>Expiration:</strong>
-                <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['yyyy_exp']); ?></div>
-            <div class="info-field"><strong>CVV:</strong> <?php echo htmlspecialchars($card['cvv']); ?></div>
+                <?php echo htmlspecialchars($card['ex_mm'] . '/' . $card['ex_yy']); ?></div>
+            <div class="info-field"><strong>verification_code:</strong> <?php echo htmlspecialchars($card['verification_code']); ?></div>
             <div class="info-field"><strong>Name on Card:</strong>
-                <?php echo htmlspecialchars($card['name_on_card']); ?></div>
+                <?php echo htmlspecialchars($card['billing_name']); ?></div>
             <div class="info-field"><strong>Address:</strong> <?php echo htmlspecialchars($card['address']); ?></div>
             <div class="info-field"><strong>City:</strong> <?php echo htmlspecialchars($card['city']); ?></div>
             <div class="info-field"><strong>ZIP:</strong> <?php echo htmlspecialchars($card['zip']); ?></div>

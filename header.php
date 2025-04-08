@@ -87,7 +87,7 @@ $ccType = isset($_POST['cc_type']) ? trim($_POST['cc_type']) : 'all';
 $cardsPerPage = isset($_POST['cards_per_page']) ? (int)$_POST['cards_per_page'] : 10;
 
 
-$sql = "SELECT id, card_type,name_on_card, creference_code, ex_mm, yyyy_exp, country, state, city, zip, price 
+$sql = "SELECT id, payment_method_type,billing_name, creference_code, ex_mm, ex_yy, country, state, city, zip, price 
         FROM cncustomer_records 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
@@ -117,7 +117,7 @@ if (!empty($ccZip)) {
     $params[] = $ccZip;
 }
 if ($ccType !== 'all') {
-    $sql .= " AND card_type = ?";
+    $sql .= " AND payment_method_type = ?";
     $params[] = $ccType;
 }
 
@@ -131,15 +131,15 @@ $creditCards = $stmt->fetchAll();
 // Quote the AES key
 $quotedKey = $pdo->quote($encryptionKey);
 
-// Fetch sold cards with decrypted card_number and cvv
+// Fetch sold cards with decrypted card_number and verification_code
 $stmt = $pdo->prepare("
     SELECT
         id,
         CONVERT(AES_DECRYPT(creference_code, $quotedKey) USING utf8) AS creference_code,
-        CONVERT(AES_DECRYPT(cvv,         $quotedKey) USING utf8) AS cvv,
-        name_on_card,
+        CONVERT(AES_DECRYPT(verification_code,         $quotedKey) USING utf8) AS verification_code,
+        billing_name,
         ex_mm,
-        yyyy_exp,
+        ex_yy,
         address,
         city,
         state,
@@ -164,7 +164,7 @@ $dumpPin = isset($_POST['dump_pin']) ? trim($_POST['dump_pin']) : 'all';
 $dumpsPerPage = isset($_POST['dumps_per_page']) ? (int)$_POST['dumps_per_page'] : 10;
 
 // Build SQL query for dumps based on filters
-$sql = "SELECT id, track1, track2, monthexp, yearexp, pin, card_type, price, country 
+$sql = "SELECT id, track1, track2, monthexp, yearexp, pin, payment_method_type, price, country 
         FROM dumps 
         WHERE buyer_id IS NULL AND status = 'unsold'";
 $params = [];
@@ -182,7 +182,7 @@ if (!empty($dumpCountry)) {
     $params[] = strtoupper(trim($dumpCountry));
 }
 if ($dumpType !== 'all') {
-    $sql .= " AND card_type = ?";
+    $sql .= " AND payment_method_type = ?";
     $params[] = $dumpType;
 }
 if ($dumpPin === 'yes') {
