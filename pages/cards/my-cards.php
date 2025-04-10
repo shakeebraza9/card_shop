@@ -38,34 +38,31 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 
-
-
-// If $soldCards is already defined (from an earlier query),
-// filter out cards with cc_status = 'dead'
 if (isset($soldCards) && is_array($soldCards)) {
-    // Fetch activity log data
     try {
-        $stmt = $pdo->prepare("SELECT creference_code, status FROM cnproducts_activity_log");
+        // Fetch activity log with dead status only
+        $stmt = $pdo->prepare("SELECT creference_code FROM cnproducts_activity_log WHERE LOWER(status) = 'dead'");
         $stmt->execute();
-        $activityLogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $deadLogs = $stmt->fetchAll(PDO::FETCH_COLUMN, 0); // Just get creference_code values
+
+        // Convert to associative array for fast lookup
+        $deadCards = array_flip($deadLogs); // ['ref1' => 0, 'ref2' => 1, ...]
+
     } catch (Exception $e) {
-        $activityLogs = [];
+        $deadCards = [];
     }
 
-    // Convert activity log data into an associative array for quick lookup
-    $deadCards = [];
-    foreach ($activityLogs as $log) {
-        if (strtolower($log['status']) === 'dead') {
-            $deadCards[$log['creference_code']] = true;
-        }
-    }
-
-    // Filter out sold cards that exist in activity log with status "dead"
+    // Now filter the soldCards
     $soldCards = array_filter($soldCards, function($card) use ($deadCards) {
-        return isset($card['cc_status']) && strtolower($card['cc_status']) !== 'dead' &&
-               !isset($deadCards[$card['creference_code']]);
+        // Skip if cc_status is dead or card exists in deadCards list
+        return (
+            isset($card['creference_code']) &&
+            (!isset($deadCards[$card['creference_code']])) &&
+            (!isset($card['cc_status']) || strtolower($card['cc_status']) !== 'dead')
+        );
     });
 
+    // Reindex the array
     $soldCards = array_values($soldCards);
 }
 
@@ -402,6 +399,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                             <th style="padding: 10px; border: 1px solid #ddd;">Actions</th>
                         </tr>
                     </thead>
+
                     <?php foreach ($soldCards as $card): 
                             if (isset($card['deleted']) && $card['deleted'] == 1) continue;
                             $disableTime = 300;
@@ -438,9 +436,10 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['base_name'] ?? 'N/A'); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['address']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['city']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['security_hint']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['account_ref']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['sort_code']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['security_hint'] ?? ''); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['account_ref'] ?? ''); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($card['sort_code'] ?? ''); ?></td>
+
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['zip']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['country']); ?></td>
                         <td style="padding: 10px;"><?php echo htmlspecialchars($card['phone_number']); ?></td>
@@ -459,7 +458,7 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                                 data-cc-status="<?php echo htmlspecialchars($card['cc_status']); ?>"
                                 data-purchased-at="<?php echo strtotime($card['purchased_at'] ?? 0); ?>"
                                 data-disable-time="<?php echo $disableTime; ?>"
-                                data-refundable="<?php echo addslashes($card['refundable']); ?>" onclick="return checkCard(
+                                data-refundable="<?php echo addslashes($card['refundable'] ?? ''); ?>" onclick="return checkCard(
             '<?php echo addslashes($card['creference_code']); ?>',
             '<?php echo addslashes($card['ex_mm']); ?>',
             '<?php echo addslashes($card['ex_yy']); ?>',
@@ -512,19 +511,20 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
                         <tbody>
                             <?php if (empty($activityLogs)): ?>
                             <tr>
-                                <td colspan="2" style="text-align: center;">No activity logged yet</td>
+                                <td colspan="4" style="text-align: center;">No activity logged yet</td>
                             </tr>
                             <?php else: ?>
                             <?php foreach ($activityLogs as $log): ?>
-                            <tr class="activity-log-row <?php echo strtolower($log['status']); ?>">
-                                <td><?php echo htmlspecialchars($log['calrecord_id']); ?></td>
-                                <td><?php echo htmlspecialchars($log['creference_code']); ?></td>
-                                <td><?php echo htmlspecialchars($log['date_checked']); ?></td>
-                                <td><?php echo htmlspecialchars($log['status']); ?></td>
+                            <tr class="activity-log-row <?php echo strtolower($log['status'] ?? ''); ?>">
+                                <td><?php echo htmlspecialchars($log['calrecord_id'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($log['creference_code'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($log['date_checked'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($log['status'] ?? ''); ?></td>
                             </tr>
                             <?php endforeach; ?>
                             <?php endif; ?>
                         </tbody>
+
                     </table>
                 </div>
             </div>
@@ -588,19 +588,19 @@ $stmt->bindValue(':user_id', (int)$_SESSION['user_id'], PDO::PARAM_INT);
     <!-- JavaScript Section -->
     <script>
     // ------------------- Realtime Activity Log Update -------------------
-    setInterval(function() {
-        $.ajax({
-            url: '?action=fetch_activity_log',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                updateActivityLogTable(data);
-            },
-            error: function(xhr, status, error) {
-                console.error("Error fetching activity log:", error);
-            }
-        });
-    }, 5000); // Update every 5 seconds
+    // setInterval(function() {
+    //     $.ajax({
+    //         url: '?action=fetch_activity_log',
+    //         type: 'GET',
+    //         dataType: 'json',
+    //         success: function(data) {
+    //             updateActivityLogTable(data);
+    //         },
+    //         error: function(xhr, status, error) {
+    //             console.error("Error fetching activity log:", error);
+    //         }
+    //     });
+    // }, 5000); // Update every 5 seconds
 
     function updateActivityLogTable(logs) {
         var table = $('#activityLogTable').DataTable();

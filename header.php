@@ -144,6 +144,8 @@ $stmt = $pdo->prepare("
         city,
         state,
         zip,
+        is_view,
+        cc_status,
         country,
         phone_number,
         date_of_birth
